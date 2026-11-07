@@ -1,7 +1,7 @@
 ---
 title: "Configuration and flags"
 source: "https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/configuration.md"
-scraped_at: "2026-11-07T19:28:07.931623+00:00"
+scraped_at: "2026-11-07T19:33:27.040066+00:00"
 doc_id: "2026-07-28/tools/inspector/configuration"
 content_hash: "8a70396decca25fc"
 corpus_source: "mcp"

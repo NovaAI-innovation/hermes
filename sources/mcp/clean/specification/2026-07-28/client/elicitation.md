@@ -1,7 +1,7 @@
 ---
 title: "Elicitation"
 source: "https://modelcontextprotocol.io/specification/2026-07-28/client/elicitation.md"
-scraped_at: "2026-11-07T19:28:58.606600+00:00"
+scraped_at: "2026-11-07T19:33:49.130299+00:00"
 doc_id: "specification/2026-07-28/client/elicitation"
 content_hash: "3b286f14fdbd142a"
 corpus_source: "mcp"

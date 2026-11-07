@@ -1,7 +1,7 @@
 ---
 title: "Authorization Extensions"
 source: "https://modelcontextprotocol.io/extensions/auth/overview.md"
-scraped_at: "2026-11-07T19:29:53.275630+00:00"
+scraped_at: "2026-11-07T19:34:08.673342+00:00"
 doc_id: "extensions/auth/overview"
 content_hash: "e9a3915f73ee0389"
 corpus_source: "mcp"

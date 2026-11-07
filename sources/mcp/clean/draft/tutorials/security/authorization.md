@@ -1,7 +1,7 @@
 ---
 title: "Understanding Authorization in MCP"
 source: "https://modelcontextprotocol.io/docs/draft/tutorials/security/authorization.md"
-scraped_at: "2026-11-07T19:28:44.036929+00:00"
+scraped_at: "2026-11-07T19:33:34.957825+00:00"
 doc_id: "draft/tutorials/security/authorization"
 content_hash: "3f66a76da782fb44"
 corpus_source: "mcp"

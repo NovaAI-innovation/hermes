@@ -1,7 +1,7 @@
 ---
 title: "Architecture"
 source: "https://modelcontextprotocol.io/specification/draft/architecture/index.md"
-scraped_at: "2026-11-07T19:29:39.388557+00:00"
+scraped_at: "2026-11-07T19:33:55.016186+00:00"
 doc_id: "specification/draft/architecture/index"
 content_hash: "1a6afd8c85b57419"
 corpus_source: "mcp"

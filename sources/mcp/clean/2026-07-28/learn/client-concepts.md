@@ -1,7 +1,7 @@
 ---
 title: "Understanding MCP clients"
 source: "https://modelcontextprotocol.io/docs/2026-07-28/learn/client-concepts.md"
-scraped_at: "2026-11-07T19:28:00.453395+00:00"
+scraped_at: "2026-11-07T19:33:19.943224+00:00"
 doc_id: "2026-07-28/learn/client-concepts"
 content_hash: "a0447c78ab02efd4"
 corpus_source: "mcp"

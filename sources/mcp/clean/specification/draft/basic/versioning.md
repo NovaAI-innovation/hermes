@@ -1,7 +1,7 @@
 ---
 title: "Versioning and Compatibility"
 source: "https://modelcontextprotocol.io/specification/draft/basic/versioning.md"
-scraped_at: "2026-11-07T19:29:40.175266+00:00"
+scraped_at: "2026-11-07T19:33:55.973873+00:00"
 doc_id: "specification/draft/basic/versioning"
 content_hash: "d34ffb7c8db8ffed"
 corpus_source: "mcp"

@@ -1,7 +1,7 @@
 ---
 title: "Web client"
 source: "https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/web.md"
-scraped_at: "2026-11-07T19:28:06.150757+00:00"
+scraped_at: "2026-11-07T19:33:25.316400+00:00"
 doc_id: "2026-07-28/tools/inspector/web"
 content_hash: "98ae6f4cd3265888"
 corpus_source: "mcp"

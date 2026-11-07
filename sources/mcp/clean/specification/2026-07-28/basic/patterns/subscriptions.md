@@ -1,7 +1,7 @@
 ---
 title: "Subscriptions"
 source: "https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/subscriptions.md"
-scraped_at: "2026-11-07T19:28:53.276847+00:00"
+scraped_at: "2026-11-07T19:33:44.119246+00:00"
 doc_id: "specification/2026-07-28/basic/patterns/subscriptions"
 content_hash: "26267677f52b6eb6"
 corpus_source: "mcp"

@@ -1,7 +1,7 @@
 ---
 title: "Cancellation"
 source: "https://modelcontextprotocol.io/specification/draft/basic/patterns/cancellation.md"
-scraped_at: "2026-11-07T19:29:41.824335+00:00"
+scraped_at: "2026-11-07T19:33:57.698227+00:00"
 doc_id: "specification/draft/basic/patterns/cancellation"
 content_hash: "13e6844ec7807515"
 corpus_source: "mcp"

@@ -1,7 +1,7 @@
 ---
 title: "Versioning"
 source: "https://modelcontextprotocol.io/docs/draft/learn/versioning.md"
-scraped_at: "2026-11-07T19:28:40.358659+00:00"
+scraped_at: "2026-11-07T19:33:31.591408+00:00"
 doc_id: "draft/learn/versioning"
 content_hash: "07d1f901837a8170"
 corpus_source: "mcp"

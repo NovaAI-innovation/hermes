@@ -1,7 +1,7 @@
 ---
 title: "Authorization Security Considerations"
 source: "https://modelcontextprotocol.io/specification/draft/basic/authorization/security-considerations.md"
-scraped_at: "2026-11-07T19:29:45.218324+00:00"
+scraped_at: "2026-11-07T19:34:01.138578+00:00"
 doc_id: "specification/draft/basic/authorization/security-considerations"
 content_hash: "62b1a0330d282238"
 corpus_source: "mcp"

@@ -1,7 +1,7 @@
 ---
 title: "Skills"
 source: "https://modelcontextprotocol.io/extensions/skills/overview.md"
-scraped_at: "2026-11-07T19:29:55.801122+00:00"
+scraped_at: "2026-11-07T19:34:10.300164+00:00"
 doc_id: "extensions/skills/overview"
 content_hash: "2e3355df783fc734"
 corpus_source: "mcp"

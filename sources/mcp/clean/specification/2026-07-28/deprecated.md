@@ -1,7 +1,7 @@
 ---
 title: "Deprecated Features"
 source: "https://modelcontextprotocol.io/specification/2026-07-28/deprecated.md"
-scraped_at: "2026-11-07T19:28:50.739444+00:00"
+scraped_at: "2026-11-07T19:33:41.692583+00:00"
 doc_id: "specification/2026-07-28/deprecated"
 content_hash: "d5bdb4ac531e501d"
 corpus_source: "mcp"

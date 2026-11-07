@@ -1,7 +1,7 @@
 ---
 title: "Extensions Overview"
 source: "https://modelcontextprotocol.io/extensions/overview.md"
-scraped_at: "2026-11-07T19:29:51.502770+00:00"
+scraped_at: "2026-11-07T19:34:07.041321+00:00"
 doc_id: "extensions/overview"
 content_hash: "57edd4e3bf0b8e1d"
 corpus_source: "mcp"

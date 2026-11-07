@@ -1,7 +1,7 @@
 ---
 title: "Tools"
 source: "https://modelcontextprotocol.io/specification/2026-07-28/server/tools.md"
-scraped_at: "2026-11-07T19:29:00.802953+00:00"
+scraped_at: "2026-11-07T19:33:51.268706+00:00"
 doc_id: "specification/2026-07-28/server/tools"
 content_hash: "897a5c10873f975d"
 corpus_source: "mcp"

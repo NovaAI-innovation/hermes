@@ -1,7 +1,7 @@
 ---
 title: "Frequently Asked Questions"
 source: "https://modelcontextprotocol.io/registry/faq.md"
-scraped_at: "2026-11-07T19:29:57.125388+00:00"
+scraped_at: "2026-11-07T19:34:11.560129+00:00"
 doc_id: "registry/faq"
 content_hash: "d0eccbe1855107e7"
 corpus_source: "mcp"

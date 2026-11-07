@@ -1,7 +1,7 @@
 ---
 title: "MCP Registry Supported Package Types"
 source: "https://modelcontextprotocol.io/registry/package-types.md"
-scraped_at: "2026-11-07T19:29:57.574408+00:00"
+scraped_at: "2026-11-07T19:34:11.963965+00:00"
 doc_id: "registry/package-types"
 content_hash: "b5ee773d4cc0c1eb"
 corpus_source: "mcp"

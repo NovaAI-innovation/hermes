@@ -1,7 +1,7 @@
 ---
 title: "Completion"
 source: "https://modelcontextprotocol.io/specification/draft/server/utilities/completion.md"
-scraped_at: "2026-11-07T19:29:49.444732+00:00"
+scraped_at: "2026-11-07T19:34:05.321459+00:00"
 doc_id: "specification/draft/server/utilities/completion"
 content_hash: "074b278ef7ddec31"
 corpus_source: "mcp"

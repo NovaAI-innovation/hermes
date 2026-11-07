@@ -1,7 +1,7 @@
 ---
 title: "Authorization"
 source: "https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/authorization.md"
-scraped_at: "2026-11-07T19:28:08.357146+00:00"
+scraped_at: "2026-11-07T19:33:27.429902+00:00"
 doc_id: "2026-07-28/tools/inspector/authorization"
 content_hash: "48645aaed63ef990"
 corpus_source: "mcp"

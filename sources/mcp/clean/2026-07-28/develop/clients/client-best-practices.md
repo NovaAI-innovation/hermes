@@ -1,7 +1,7 @@
 ---
 title: "Client Best Practices"
 source: "https://modelcontextprotocol.io/docs/2026-07-28/develop/clients/client-best-practices.md"
-scraped_at: "2026-11-07T19:28:03.534456+00:00"
+scraped_at: "2026-11-07T19:33:22.756061+00:00"
 doc_id: "2026-07-28/develop/clients/client-best-practices"
 content_hash: "b159be21f397adf2"
 corpus_source: "mcp"

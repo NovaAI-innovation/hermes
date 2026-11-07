@@ -1,7 +1,7 @@
 ---
 title: "Discovery"
 source: "https://modelcontextprotocol.io/specification/2026-07-28/server/discover.md"
-scraped_at: "2026-11-07T19:28:59.470727+00:00"
+scraped_at: "2026-11-07T19:33:49.960015+00:00"
 doc_id: "specification/2026-07-28/server/discover"
 content_hash: "98c4b1f695f2d346"
 corpus_source: "mcp"

@@ -1,7 +1,7 @@
 ---
 title: "Overview"
 source: "https://modelcontextprotocol.io/specification/draft/basic/patterns/index.md"
-scraped_at: "2026-11-07T19:29:40.615971+00:00"
+scraped_at: "2026-11-07T19:33:56.397905+00:00"
 doc_id: "specification/draft/basic/patterns/index"
 content_hash: "bf8e0abbb8009ec4"
 corpus_source: "mcp"

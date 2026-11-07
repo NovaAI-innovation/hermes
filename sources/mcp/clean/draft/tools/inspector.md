@@ -1,7 +1,7 @@
 ---
 title: "MCP Inspector"
 source: "https://modelcontextprotocol.io/docs/draft/tools/inspector.md"
-scraped_at: "2026-11-07T19:28:45.267706+00:00"
+scraped_at: "2026-11-07T19:33:36.244924+00:00"
 doc_id: "draft/tools/inspector"
 content_hash: "6267f5319f0a4f26"
 corpus_source: "mcp"

@@ -1,7 +1,7 @@
 ---
 title: "Schema Reference"
 source: "https://modelcontextprotocol.io/specification/2026-07-28/schema.md"
-scraped_at: "2026-11-07T19:29:03.033688+00:00"
+scraped_at: "2026-11-07T19:33:53.372246+00:00"
 doc_id: "specification/2026-07-28/schema"
 content_hash: "39a30b71926053c6"
 corpus_source: "mcp"

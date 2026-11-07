@@ -1,7 +1,7 @@
 ---
 title: "Pagination"
 source: "https://modelcontextprotocol.io/specification/2026-07-28/server/utilities/pagination.md"
-scraped_at: "2026-11-07T19:29:02.604897+00:00"
+scraped_at: "2026-11-07T19:33:52.925763+00:00"
 doc_id: "specification/2026-07-28/server/utilities/pagination"
 content_hash: "50a7268fbbf3ac4e"
 corpus_source: "mcp"

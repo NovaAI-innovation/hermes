@@ -1,7 +1,7 @@
 ---
 title: "Build an MCP App"
 source: "https://modelcontextprotocol.io/extensions/apps/build.md"
-scraped_at: "2026-11-07T19:29:52.754747+00:00"
+scraped_at: "2026-11-07T19:34:08.273092+00:00"
 doc_id: "extensions/apps/build"
 content_hash: "f8a1ab0c522a9e87"
 corpus_source: "mcp"

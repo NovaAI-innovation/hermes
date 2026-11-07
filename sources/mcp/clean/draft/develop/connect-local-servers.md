@@ -1,7 +1,7 @@
 ---
 title: "Connect to local MCP servers"
 source: "https://modelcontextprotocol.io/docs/draft/develop/connect-local-servers.md"
-scraped_at: "2026-11-07T19:28:40.948922+00:00"
+scraped_at: "2026-11-07T19:33:32.001861+00:00"
 doc_id: "draft/develop/connect-local-servers"
 content_hash: "f11510ebe5588f73"
 corpus_source: "mcp"

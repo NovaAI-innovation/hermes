@@ -1,7 +1,7 @@
 ---
 title: "Caching"
 source: "https://modelcontextprotocol.io/specification/2026-07-28/server/utilities/caching.md"
-scraped_at: "2026-11-07T19:29:01.269875+00:00"
+scraped_at: "2026-11-07T19:33:51.733970+00:00"
 doc_id: "specification/2026-07-28/server/utilities/caching"
 content_hash: "cc418a25eaf71e36"
 corpus_source: "mcp"

@@ -1,7 +1,7 @@
 ---
 title: "Architecture overview"
 source: "https://modelcontextprotocol.io/docs/draft/learn/architecture.md"
-scraped_at: "2026-11-07T19:28:39.147854+00:00"
+scraped_at: "2026-11-07T19:33:30.375118+00:00"
 doc_id: "draft/learn/architecture"
 content_hash: "2776fb3999c26c09"
 corpus_source: "mcp"

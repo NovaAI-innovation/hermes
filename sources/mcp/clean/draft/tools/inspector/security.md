@@ -1,7 +1,7 @@
 ---
 title: "Security"
 source: "https://modelcontextprotocol.io/docs/draft/tools/inspector/security.md"
-scraped_at: "2026-11-07T19:28:49.072620+00:00"
+scraped_at: "2026-11-07T19:33:39.926007+00:00"
 doc_id: "draft/tools/inspector/security"
 content_hash: "932e787e7de53e7b"
 corpus_source: "mcp"

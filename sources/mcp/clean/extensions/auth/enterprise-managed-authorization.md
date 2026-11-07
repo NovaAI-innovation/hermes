@@ -1,7 +1,7 @@
 ---
 title: "Enterprise-Managed Authorization"
 source: "https://modelcontextprotocol.io/extensions/auth/enterprise-managed-authorization.md"
-scraped_at: "2026-11-07T19:29:54.354217+00:00"
+scraped_at: "2026-11-07T19:34:09.487262+00:00"
 doc_id: "extensions/auth/enterprise-managed-authorization"
 content_hash: "dc7ab77e493bb101"
 corpus_source: "mcp"

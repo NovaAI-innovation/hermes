@@ -1,7 +1,7 @@
 ---
 title: "CLI client"
 source: "https://modelcontextprotocol.io/docs/draft/tools/inspector/cli.md"
-scraped_at: "2026-11-07T19:28:46.078094+00:00"
+scraped_at: "2026-11-07T19:33:37.008213+00:00"
 doc_id: "draft/tools/inspector/cli"
 content_hash: "7bbd95203169eea7"
 corpus_source: "mcp"

@@ -1,7 +1,7 @@
 ---
 title: "Build with Agent Skills"
 source: "https://modelcontextprotocol.io/docs/draft/develop/build-with-agent-skills.md"
-scraped_at: "2026-11-07T19:28:41.891591+00:00"
+scraped_at: "2026-11-07T19:33:32.778264+00:00"
 doc_id: "draft/develop/build-with-agent-skills"
 content_hash: "9044ef5bda4d45be"
 corpus_source: "mcp"

@@ -1,7 +1,7 @@
 ---
 title: "Specification"
 source: "https://modelcontextprotocol.io/specification/2026-07-28/index.md"
-scraped_at: "2026-11-07T19:28:49.915846+00:00"
+scraped_at: "2026-11-07T19:33:40.814805+00:00"
 doc_id: "specification/2026-07-28/index"
 content_hash: "d7a098e775de209f"
 corpus_source: "mcp"

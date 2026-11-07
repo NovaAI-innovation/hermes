@@ -1,7 +1,7 @@
 ---
 title: "mcpdo connection client"
 source: "https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/mcpdo.md"
-scraped_at: "2026-11-07T19:28:07.502697+00:00"
+scraped_at: "2026-11-07T19:33:26.619881+00:00"
 doc_id: "2026-07-28/tools/inspector/mcpdo"
 content_hash: "ac7c8fc9a07d051c"
 corpus_source: "mcp"

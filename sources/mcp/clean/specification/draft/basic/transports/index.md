@@ -1,7 +1,7 @@
 ---
 title: "Overview"
 source: "https://modelcontextprotocol.io/specification/draft/basic/transports/index.md"
-scraped_at: "2026-11-07T19:29:42.645409+00:00"
+scraped_at: "2026-11-07T19:33:58.565499+00:00"
 doc_id: "specification/draft/basic/transports/index"
 content_hash: "fc2bbf764d1e426d"
 corpus_source: "mcp"

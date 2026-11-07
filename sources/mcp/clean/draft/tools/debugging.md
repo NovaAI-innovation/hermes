@@ -1,7 +1,7 @@
 ---
 title: "Debugging"
 source: "https://modelcontextprotocol.io/docs/draft/tools/debugging.md"
-scraped_at: "2026-11-07T19:28:49.464038+00:00"
+scraped_at: "2026-11-07T19:33:40.389063+00:00"
 doc_id: "draft/tools/debugging"
 content_hash: "7cdee138897983b4"
 corpus_source: "mcp"

@@ -1,7 +1,7 @@
 ---
 title: "Recipes"
 source: "https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/recipes.md"
-scraped_at: "2026-11-07T19:28:09.344777+00:00"
+scraped_at: "2026-11-07T19:33:28.243640+00:00"
 doc_id: "2026-07-28/tools/inspector/recipes"
 content_hash: "bbc5b32d11917167"
 corpus_source: "mcp"

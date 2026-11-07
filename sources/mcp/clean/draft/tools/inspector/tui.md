@@ -1,7 +1,7 @@
 ---
 title: "TUI client"
 source: "https://modelcontextprotocol.io/docs/draft/tools/inspector/tui.md"
-scraped_at: "2026-11-07T19:28:46.488058+00:00"
+scraped_at: "2026-11-07T19:33:37.405773+00:00"
 doc_id: "draft/tools/inspector/tui"
 content_hash: "708d6cacaeed5764"
 corpus_source: "mcp"

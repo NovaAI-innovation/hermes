@@ -1,7 +1,7 @@
 ---
 title: "Logging"
 source: "https://modelcontextprotocol.io/specification/2026-07-28/server/utilities/logging.md"
-scraped_at: "2026-11-07T19:29:02.128418+00:00"
+scraped_at: "2026-11-07T19:33:52.539121+00:00"
 doc_id: "specification/2026-07-28/server/utilities/logging"
 content_hash: "fcfd8ecf0491ce71"
 corpus_source: "mcp"

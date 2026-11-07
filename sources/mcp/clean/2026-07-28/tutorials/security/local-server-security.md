@@ -1,7 +1,7 @@
 ---
 title: "Local Server Security"
 source: "https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/local-server-security.md"
-scraped_at: "2026-11-07T19:28:05.289425+00:00"
+scraped_at: "2026-11-07T19:33:24.453127+00:00"
 doc_id: "2026-07-28/tutorials/security/local-server-security"
 content_hash: "24dcdb453c383f77"
 corpus_source: "mcp"

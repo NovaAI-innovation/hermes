@@ -1,7 +1,7 @@
 ---
 title: "Prompts"
 source: "https://modelcontextprotocol.io/specification/2026-07-28/server/prompts.md"
-scraped_at: "2026-11-07T19:28:59.863734+00:00"
+scraped_at: "2026-11-07T19:33:50.425297+00:00"
 doc_id: "specification/2026-07-28/server/prompts"
 content_hash: "c3ab8d571f320588"
 corpus_source: "mcp"

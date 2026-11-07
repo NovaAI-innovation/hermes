@@ -1,7 +1,7 @@
 ---
 title: "Protocol eras"
 source: "https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/protocol-eras.md"
-scraped_at: "2026-11-07T19:28:08.865141+00:00"
+scraped_at: "2026-11-07T19:33:27.850899+00:00"
 doc_id: "2026-07-28/tools/inspector/protocol-eras"
 content_hash: "eb1b9d7c855abc98"
 corpus_source: "mcp"

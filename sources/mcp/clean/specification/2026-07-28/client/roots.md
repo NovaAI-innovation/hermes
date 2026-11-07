@@ -1,7 +1,7 @@
 ---
 title: "Roots"
 source: "https://modelcontextprotocol.io/specification/2026-07-28/client/roots.md"
-scraped_at: "2026-11-07T19:28:57.649036+00:00"
+scraped_at: "2026-11-07T19:33:48.312730+00:00"
 doc_id: "specification/2026-07-28/client/roots"
 content_hash: "2a540f57ead23609"
 corpus_source: "mcp"
