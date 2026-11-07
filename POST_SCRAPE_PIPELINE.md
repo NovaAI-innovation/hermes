@@ -2,7 +2,10 @@
 
 This document describes the pipeline that turns Crawl4AI output in `docs/` into a retrieval-ready corpus. It assumes upstream scraping is handled by `scrape_llms.py` and `llms.txt`.
 
-**Implementation status:** stages 1–4 plus retrieval and eval are implemented in `pipeline/`. Full run takes ~57s and currently scores recall@10 = 1.0 on 20 sample queries.
+## Implementation status
+
+- Stages 1–4 and retrieval/eval are implemented in `pipeline/` (**reference implementation only** — the production path is the Qdrant plugin below).
+- The Hermes integration lives in `hermes-docs-qdrant/`: a standalone plugin that ingests `corpus/chunks.jsonl` into Qdrant and exposes `docs_search` / `docs_read` / `docs_outline` to the agent. See its `README.md`.
 
 ## Quick start
 

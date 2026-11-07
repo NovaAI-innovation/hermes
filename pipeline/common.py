@@ -11,6 +11,8 @@ from typing import Any, Iterator
 
 import yaml
 
+from sources import Source, iter_sources, load_sources
+
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parent / "config.yaml"
 
@@ -66,11 +68,6 @@ def slugify(text: str, limit: int = 60) -> str:
     return slug[:limit] or "section"
 
 
-def doc_id_from_path(path: Path) -> str:
-    rel = path.relative_to(path_for("raw_docs")).with_suffix("")
-    return rel.as_posix()
-
-
 def write_jsonl(path: Path, rows: Iterator[dict] | list[dict]) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
     n = 0
@@ -87,57 +84,93 @@ def read_jsonl(path: Path) -> list[dict]:
 
 
 def iter_raw_docs() -> Iterator[Path]:
-    root = path_for("raw_docs")
-    for path in sorted(root.rglob("*.md")):
-        yield path
+    """Every scraped markdown file across all sources."""
+    for source in iter_sources():
+        if not source.docs_dir.exists():
+            continue
+        for path in sorted(source.docs_dir.rglob("*.md")):
+            yield path
 
 
 # ---------------------------------------------------------------- llms.txt
 
+# Generic markdown link: [title](url) with an optional ": description" suffix.
+# Matches any absolute http(s) URL so non-Hermes llms.txt files work too.
 LLMS_LINK_RE = re.compile(
-    r"\[([^\]]+)\]\((https://hermes-agent\.nousresearch\.com/docs/[^)]+)\)(?::\s*(.*))?"
+    r"\[([^\]]+)\]\((https?://[^)\s]+)\)(?::\s*(.*))?"
 )
 
 
-def load_llms_index() -> dict[str, dict[str, str]]:
-    """Map normalized URL -> {section, title, summary} from llms.txt."""
-    index_path = path_for("llms_index")
+def load_llms_index(path: Path, source=None) -> dict[str, dict[str, str]]:
+    """Map normalized URL -> {section, title, summary} from one llms.txt.
+
+    When a Source is supplied, its include/exclude rules are applied so the
+    index matches exactly what will be scraped.
+    """
     index: dict[str, dict[str, str]] = {}
-    if not index_path.exists():
+    if not path.exists():
         return index
     section = ""
-    for line in index_path.read_text(encoding="utf-8").splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
-        if stripped.startswith("## "):
-            section = stripped[3:].strip()
+        heading = re.match(r"^(#{2,3})\s+(.*)$", stripped)
+        if heading:
+            section = heading.group(2).strip()
             continue
         for title, url, summary in LLMS_LINK_RE.findall(line):
-            index[url.rstrip("/")] = {
-                "section": section,
-                "title": title.strip(),
-                "summary": (summary or "").strip(),
-            }
+            url = url.rstrip("/")
+            if source is not None and not source.allows(url):
+                continue
+            index.setdefault(
+                url,
+                {
+                    "section": section,
+                    "title": title.strip(),
+                    "summary": (summary or "").strip(),
+                },
+            )
     return index
-
-
-DOC_TYPE_RULES: list[tuple[str, str]] = [
-    ("reference/", "reference"),
-    ("developer-guide/", "developer"),
-    ("user-guide/messaging/", "messaging"),
-    ("user-guide/features/", "feature"),
-    ("user-guide/", "guide"),
-    ("getting-started/", "getting-started"),
-    ("guides/", "guide"),
-    ("integrations/", "guide"),
-]
-
-
-def classify_doc(doc_id: str) -> str:
-    for prefix, kind in DOC_TYPE_RULES:
-        if doc_id.startswith(prefix):
-            return kind
-    return "default"
 
 
 def breadcrumb_for(doc_id: str) -> list[str]:
     return [part.replace("-", " ").title() for part in doc_id.split("/")]
+
+
+def _strip_ext(url: str) -> str:
+    return re.sub(r"\.(md|mdx|markdown|html?)$", "", url, flags=re.IGNORECASE)
+
+
+def lookup_llms_entry(llms: dict[str, dict[str, str]], source_url: str) -> dict[str, str]:
+    """Match a page to its llms.txt entry, tolerating .md/.html suffixes.
+
+    llms.txt commonly lists `.../page.md` while the scraped front matter records
+    the canonical `.../page`. Normalize both sides before comparing.
+    """
+    if not source_url:
+        return {}
+    url = source_url.rstrip("/")
+    for candidate in (url, _strip_ext(url)):
+        if candidate in llms:
+            return llms[candidate]
+        # llms index keys may themselves carry an extension.
+        stripped = _strip_ext(candidate)
+        for key, entry in llms.items():
+            if _strip_ext(key.rstrip("/")) == stripped:
+                return entry
+    return {}
+    """Source-qualified doc id: '<source>:<path>'. Idempotent."""
+    if not source_name or doc_id.startswith(f"{source_name}:"):
+        return doc_id
+def qualify(doc_id: str, source_name: str | None) -> str:
+    """Source-qualified doc id: '<source>:<path>'. Idempotent."""
+    if not source_name or doc_id.startswith(f"{source_name}:"):
+        return doc_id
+    return f"{source_name}:{doc_id}"
+
+
+def split_doc_id(doc_id: str) -> tuple[str | None, str]:
+    """'hermes:user-guide/cli' -> ('hermes', 'user-guide/cli')."""
+    source, sep, rest = doc_id.partition(":")
+    if sep and "/" not in source and rest:
+        return source, rest
+    return None, doc_id

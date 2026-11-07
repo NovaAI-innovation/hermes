@@ -67,6 +67,7 @@ def main() -> int:
 
     manifest = {
         "chunk_count": len(chunks),
+        "sources": sorted({c.get("corpus_source", "") for c in chunks if c.get("corpus_source")}),
         "embed_provider": embedder.provider,
         "embedding_model": embedder.model_name,
         "embed_signature": embedder.signature,

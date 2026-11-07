@@ -1,8 +1,11 @@
-"""Stage 1 - Normalize scraped markdown: strip Docusaurus chrome, keep article body.
+"""Stage 1 - Normalize scraped markdown: strip generator chrome, keep article body.
 
-Reads:  docs/**/*.md
-Writes: clean/**/*.md  (article-only markdown with YAML front matter)
+Reads:  sources/<name>/docs/**/*.md
+Writes: sources/<name>/clean/**/*.md
         corpus/normalize_report.json
+
+Chrome patterns are configurable per source in sources.yaml under
+`normalize.footer_markers`; defaults cover Docusaurus and most doc sites.
 """
 
 from __future__ import annotations
@@ -11,60 +14,48 @@ import json
 import re
 import sys
 
-from common import (
-    body_hash,
-    iter_raw_docs,
-    load_config,
-    parse_front_matter,
-    path_for,
-)
+from common import body_hash, iter_sources, load_config, parse_front_matter, path_for
 
-# --- chrome patterns -------------------------------------------------------
+# --- generic chrome patterns ----------------------------------------------
 
-# Heading permalink junk: ## Title[​](https://... "Direct link to Title")
-ANCHOR_RE = re.compile(r'\[[^\]]*\]\([^)]*?"Direct link to [^"]*"\)')
-# Anchor-only links ([] (url)) and zero-width-space link text
+# Heading permalink junk: ## Title[](url "Direct link to Title")
+ANCHOR_RE = re.compile(r'\[[^\]]*\]\([^)]*?(?:"Direct link to [^"]*"|"[^"]*anchor[^"]*")\)')
 EMPTY_LINK_RE = re.compile(r"\[\s*\u200b?\s*\]\([^)]*\)")
 ZWSP_RE = re.compile(r"\u200b")
-
-# Sidebar/nav bullets all point at site URLs; the article body rarely starts
-# with one. Content starts at the first H1 outside a fence.
 H1_RE = re.compile(r"^# \S")
 SKIP_TO_CONTENT_RE = re.compile(r"^\[Skip to main content\]")
 ON_THIS_PAGE_RE = re.compile(r"^On this page\s*$")
-
-# Footer markers, in priority order.
-FOOTER_MARKERS = [
-    re.compile(r"^\[.*\]\(https://github\.com/NousResearch/hermes-agent/edit/"),
-    re.compile(r"^Docs\s*$"),
-    re.compile(r"^Built by \[Nous Research\]"),
-]
-
-BREADCRUMB_ROOT_RE = re.compile(
-    r"^\s*\* \[\]\(https://hermes-agent\.nousresearch\.com/docs/?\)\s*$"
+SIDEBAR_BULLET_RE = re.compile(
+    r"^\s*[\*\-]\s+\[[^\]]+\]\(https?://[^)]+\)\s*$"
 )
 
-SITE_PREFIX = "https://hermes-agent.nousresearch.com/docs/"
-SITE_LINK_RE = re.compile(r"\]\(" + re.escape(SITE_PREFIX) + r"([^)\s]*)\)")
+DEFAULT_FOOTER_MARKERS = [
+    r"^\[.*\]\(https://github\.com/[^)]*/edit/",
+    r"^Built by \[",
+    r"^Docs\s*$",
+    r"^Community\s*$",
+    r"^More\s*$",
+]
 
 
-def slice_body(lines: list[str]) -> tuple[list[str], int, int]:
-    """Return (content lines, lines strip from head, lines stripped from tail)."""
+def footer_patterns(source) -> list[re.Pattern]:
+    markers = (source.normalize or {}).get("footer_markers") or DEFAULT_FOOTER_MARKERS
+    return [re.compile(m) for m in markers]
+
+
+def slice_body(
+    lines: list[str], footers: list[re.Pattern], strip_sidebar: bool = True
+) -> tuple[list[str], int, int]:
+    """Return (content lines, lines stripped from head, lines stripped from tail)."""
     start = 0
     tail = len(lines)
 
-    # Head: prefer the breadcrumb root block that precedes the article H1,
-    # else the first H1, else just after "On this page".
-    h1 = next(
-        (i for i, line in enumerate(lines) if H1_RE.match(line)),
-        None,
-    )
+    h1 = next((i for i, line in enumerate(lines) if H1_RE.match(line)), None)
     if h1 is not None:
         start = h1
     else:
         on_page = next(
-            (i for i, line in enumerate(lines) if ON_THIS_PAGE_RE.match(line)),
-            None,
+            (i for i, line in enumerate(lines) if ON_THIS_PAGE_RE.match(line)), None
         )
         if on_page is not None:
             start = on_page + 1
@@ -73,102 +64,111 @@ def slice_body(lines: list[str]) -> tuple[list[str], int, int]:
                 (i for i, line in enumerate(lines) if SKIP_TO_CONTENT_RE.match(line)),
                 None,
             )
-            start = 0 if skip is None else skip
+            start = 0 if skip is None else skip + 1
 
-    # Tail: first footer marker after the content starts.
     for i in range(start, len(lines)):
-        if any(marker.match(lines[i]) for marker in FOOTER_MARKERS):
+        if any(p.match(lines[i]) for p in footers):
             tail = i
             break
 
-    return lines[start:tail], start, len(lines) - tail
+    content = lines[start:tail]
+    if strip_sidebar:
+        content = [line for line in content if not SIDEBAR_BULLET_RE.match(line)]
+    return content, start, len(lines) - tail
 
 
 def clean_text(text: str) -> str:
     text = ANCHOR_RE.sub("", text)
     text = EMPTY_LINK_RE.sub("", text)
     text = ZWSP_RE.sub("", text)
-    # Same-site absolute URLs -> site-relative, cheaper tokens and no nav noise
-    text = SITE_LINK_RE.sub(r"](/docs/\1)", text)
-    text = text.replace(SITE_PREFIX.rstrip("/"), "/docs")
-    # Collapse >2 blank lines
     text = re.sub(r"\n{3,}", "\n\n", text)
-    # Trim trailing spaces on lines
     text = "\n".join(line.rstrip() for line in text.splitlines())
     return text.strip() + "\n"
 
 
 def render_front_matter(meta: dict[str, str]) -> str:
-    fields = ["title", "source", "scraped_at", "doc_id", "content_hash"]
+    fields = ["title", "source", "scraped_at", "doc_id", "content_hash", "corpus_source"]
     out = ["---"]
     for key in fields:
         if meta.get(key):
-            value = meta[key].replace('"', "'")
-            out.append(f'{key}: "{value}"')
+            out.append(f'{key}: "{str(meta[key]).replace(chr(34), chr(39))}"')
     out.append("---")
     return "\n".join(out) + "\n\n"
 
 
 def main() -> int:
     cfg = load_config()
-    raw_root = path_for("raw_docs")
-    clean_root = path_for("clean_docs")
-    report: dict = {"documents": 0, "skipped": [], "warnings": [], "bytes": {}}
+    corpus = path_for("corpus")
+    report: dict = {"sources": {}, "warnings": [], "skipped": []}
 
-    for raw_path in iter_raw_docs():
-        rel = raw_path.relative_to(raw_root)
-        if cfg["normalize"]["drop_zh_hans"] and "zh-Hans" in rel.as_posix():
-            report["skipped"].append({"path": rel.as_posix(), "reason": "zh-Hans"})
+    for source in iter_sources():
+        if not source.docs_dir.exists():
+            report["sources"][source.name] = {"documents": 0, "missing": True}
+            print(f"  {source.name}: no scraped docs, skipping")
             continue
 
-        text = raw_path.read_text(encoding="utf-8")
-        meta, body = parse_front_matter(text)
+        footers = footer_patterns(source)
+        docs = 0
+        raw_bytes = clean_bytes = 0
 
-        if meta.get("success", "True").lower() == "false":
-            report["skipped"].append({"path": rel.as_posix(), "reason": "scrape failed"})
-            continue
+        for raw_path in sorted(source.docs_dir.rglob("*.md")):
+            rel = raw_path.relative_to(source.docs_dir)
+            meta, body = parse_front_matter(raw_path.read_text(encoding="utf-8"))
 
-        content, head_cut, tail_cut = slice_body(body.splitlines())
-        cleaned = clean_text("\n".join(content))
+            if meta.get("success", "True").lower() == "false":
+                report["skipped"].append(
+                    {"source": source.name, "path": rel.as_posix(), "reason": "scrape failed"}
+                )
+                continue
 
-        if len(cleaned) < 200:
-            report["warnings"].append(
-                {"path": rel.as_posix(), "reason": "short after clean", "chars": len(cleaned)}
+            content, head_cut, tail_cut = slice_body(
+                body.splitlines(), footers, cfg["normalize"].get("strip_sidebar", True)
+            )
+            cleaned = clean_text("\n".join(content))
+            if len(cleaned) < 200:
+                report["warnings"].append(
+                    {
+                        "source": source.name,
+                        "path": rel.as_posix(),
+                        "chars": len(cleaned),
+                    }
+                )
+
+            doc_id = rel.with_suffix("").as_posix()
+            out_meta = {
+                "title": meta.get("title", doc_id),
+                "source": meta.get("source", ""),
+                "scraped_at": meta.get("scraped_at", ""),
+                "doc_id": doc_id,
+                "content_hash": body_hash(cleaned),
+                "corpus_source": source.name,
+            }
+
+            out_path = source.clean_dir / rel
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(render_front_matter(out_meta) + cleaned, encoding="utf-8")
+
+            docs += 1
+            raw_bytes += len(body)
+            clean_bytes += len(cleaned)
+            report["sources"].setdefault(source.name, {})
+            report["sources"][source.name].update(
+                {
+                    "documents": docs,
+                    "raw_chars": raw_bytes,
+                    "clean_chars": clean_bytes,
+                    "last_head_stripped": head_cut,
+                    "last_tail_stripped": tail_cut,
+                }
             )
 
-        doc_id = rel.with_suffix("").as_posix()
-        out_meta = {
-            "title": meta.get("title", doc_id),
-            "source": meta.get("source", ""),
-            "scraped_at": meta.get("scraped_at", ""),
-            "doc_id": doc_id,
-            "content_hash": body_hash(cleaned),
-        }
+        pct = 100 * (1 - clean_bytes / raw_bytes) if raw_bytes else 0.0
+        print(f"  {source.name}: {docs} docs, {raw_bytes:,} -> {clean_bytes:,} chars ({pct:.1f}% removed)")
 
-        out_path = clean_root / rel
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(render_front_matter(out_meta) + cleaned, encoding="utf-8")
-
-        report["documents"] += 1
-        report["bytes"][doc_id] = {
-            "raw": len(body),
-            "clean": len(cleaned),
-            "head_stripped": head_cut,
-            "tail_stripped": tail_cut,
-        }
-
-    report_path = path_for("corpus") / "normalize_report.json"
+    report_path = corpus / "normalize_report.json"
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
-
-    total_raw = sum(v["raw"] for v in report["bytes"].values()) or 1
-    total_clean = sum(v["clean"] for v in report["bytes"].values())
-    print(
-        f"normalized {report['documents']} docs -> {clean_root}\n"
-        f"chars: {total_raw:,} -> {total_clean:,} "
-        f"({100 * (1 - total_clean / total_raw):.1f}% removed), "
-        f"{len(report['warnings'])} warnings, {len(report['skipped'])} skipped"
-    )
+    print(f"normalize report -> {report_path}")
     return 0
 
 

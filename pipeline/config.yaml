@@ -2,17 +2,20 @@
 # See POST_SCRAPE_PIPELINE.md for the architecture this implements.
 
 paths:
-  raw_docs: docs
-  llms_index: llms.txt
-  clean_docs: clean
+  sources: sources          # sources/<name>/{llms.txt,docs/,clean/}
   corpus: corpus
   eval: eval
+
+scrape:
+  concurrency: 6
+  batch_size: 25
+  skip_existing: true
 
 normalize:
   strip_nav: true
   strip_footer: true
   remove_heading_anchors: true
-  drop_zh_hans: true
+  drop_localized: true
 
 chunk:
   # token targets per doc_type

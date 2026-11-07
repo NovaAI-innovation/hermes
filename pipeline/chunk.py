@@ -201,6 +201,7 @@ def main() -> int:
             yield {
                 "chunk_id": f"{doc['doc_id']}#__parent__",
                 "doc_id": doc["doc_id"],
+                "corpus_source": doc["corpus_source"],
                 "chunk_type": "parent",
                 "title": doc["title"],
                 "heading": doc["title"],
@@ -244,6 +245,7 @@ def main() -> int:
                         yield {
                             "chunk_id": f"{doc['doc_id']}#{slug}{suffix}",
                             "doc_id": doc["doc_id"],
+                            "corpus_source": doc["corpus_source"],
                             "chunk_type": "section" if kind != "preamble" else "preamble",
                             "title": doc["title"],
                             "heading": heading or doc["title"],

@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.data/
+.data-test/
+.data-offline/
+.env
