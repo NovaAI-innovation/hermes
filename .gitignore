@@ -1,1 +1,13 @@
+# Secrets
 .env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Generated corpus / vector data (lives in the plugin data home)
+hermes-docs-qdrant/.data/
+hermes-docs-qdrant/.data-offline/
+hermes-docs-qdrant/.data-test/
+hermes-docs-qdrant/sources/
+hermes-docs-qdrant/corpus/

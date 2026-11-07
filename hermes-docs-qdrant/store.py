@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 DEFAULT_COLLECTION = "hermes_docs"
+PLUGIN_ROOT = Path(__file__).resolve().parent
 EMBED_MODEL = os.getenv("HERMES_DOCS_EMBED_MODEL", "qwen/qwen3-embedding-4b")
 EMBED_BASE = os.getenv("HERMES_DOCS_EMBED_BASE", "https://openrouter.ai/api/v1")
 EMBED_DIM = int(os.getenv("HERMES_DOCS_EMBED_DIM", "2560"))
@@ -68,10 +69,20 @@ class Settings:
 
 
 def _default_local_path() -> Path:
+    """Embedded store under the plugin data home, never the install tree."""
+    try:
+        from .pipeline import paths  # type: ignore
+    except Exception:  # noqa: BLE001 - imported as a top-level script
+        try:
+            from pipeline import paths  # type: ignore
+        except Exception:  # noqa: BLE001
+            paths = None
+    if paths is not None:
+        return paths.qdrant_dir()
     base = os.getenv("HERMES_DOCS_DATA")
     if base:
         return Path(base) / "qdrant"
-    return Path(__file__).resolve().parent / ".data" / "qdrant"
+    return PLUGIN_ROOT / ".data" / "qdrant"
 
 
 # -------------------------------------------------------------------- embedder
@@ -196,7 +207,7 @@ class DocsStore:
         )
         # Payload indexes only exist on server-mode Qdrant; local mode ignores them.
         if self.settings.url:
-            for field_name in ("doc_type", "section", "doc_id"):
+            for field_name in ("doc_type", "section", "doc_id", "source"):
                 client.create_payload_index(name, field_name, field_schema="keyword")
 
     # -- search ---------------------------------------------------------
@@ -206,6 +217,7 @@ class DocsStore:
         limit: int | None = None,
         doc_type: str | None = None,
         section: str | None = None,
+        source: str | None = None,
     ) -> list[dict]:
         from qdrant_client.http import models as qm
 
@@ -221,6 +233,10 @@ class DocsStore:
         if section:
             conditions.append(
                 qm.FieldCondition(key="section", match=qm.MatchValue(value=section))
+            )
+        if source:
+            conditions.append(
+                qm.FieldCondition(key="source", match=qm.MatchValue(value=source))
             )
         query_filter = qm.Filter(must=conditions) if conditions else None
 
@@ -331,6 +347,7 @@ def _to_result(point) -> dict:
         "breadcrumb": payload.get("breadcrumb", []),
         "doc_type": payload.get("doc_type", ""),
         "section": payload.get("section", ""),
+        "source": payload.get("source", ""),
         "score": round(float(score or 0.0), 4),
     }
 
@@ -381,10 +398,33 @@ def ingest(
 
     started = time.time()
     upserted = 0
+
+    def embed_with_retry(texts: list[str], attempts: int = 6):
+        """Embed one batch, backing off on 429/5xx.
+
+        OpenRouter answers `engine_overloaded` under sustained load; a full
+        corpus rebuild is thousands of batches, so a single 429 must not abort
+        an ingest that is already ~20% done.
+        """
+        delay = 3.0
+        for attempt in range(1, attempts + 1):
+            try:
+                return embedder.embeddings.create(model=EMBED_MODEL, input=texts)
+            except Exception as exc:  # noqa: BLE001
+                status = getattr(exc, "status_code", None)
+                if attempt == attempts or (status is not None and status not in (429, 500, 502, 503, 504)):
+                    raise
+                print(
+                    f"  retry {attempt}/{attempts - 1} after {delay:.0f}s ({status or exc.__class__.__name__})",
+                    flush=True,
+                )
+                time.sleep(delay)
+                delay = min(delay * 2, 60.0)
+
     for i in range(0, len(rows), batch_size):
         batch = rows[i : i + batch_size]
         texts = [r.get("embed_text") or r["text"] for r in batch]
-        resp = embedder.embeddings.create(model=EMBED_MODEL, input=texts)
+        resp = embed_with_retry(texts)
         dense = [list(d.embedding) for d in sorted(resp.data, key=lambda d: d.index)]
         sparse_vecs = sparse.embed(texts) if use_sparse else [None] * len(batch)
 
@@ -407,6 +447,7 @@ def ingest(
                         "breadcrumb": row.get("breadcrumb", []),
                         "doc_type": row.get("doc_type", ""),
                         "section": row.get("section", ""),
+                        "source": row.get("corpus_source", ""),
                         "doc_summary": row.get("doc_summary", ""),
                     },
                 )

@@ -1,6 +1,6 @@
 """Ingest the scraped Hermes docs corpus into Qdrant.
 
-    python ingest.py --chunks ../corpus/chunks.jsonl --recreate
+    python ingest.py --chunks <data home>/corpus/chunks.jsonl --recreate
     python ingest.py --url http://localhost:6333 --collection hermes_docs
     python ingest.py --check          # connectivity + point count only
 
@@ -18,10 +18,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from store import DEFAULT_COLLECTION, DocsStore, Settings, ingest  # noqa: E402
+from pipeline import paths  # noqa: E402
 
 
 def load_dotenv() -> None:
-    for candidate in (Path(__file__).resolve().parent.parent / ".env",):
+    """Load the plugin's own .env, then the process env. Real env vars win."""
+    for candidate in (paths.env_file(), Path(__file__).resolve().parent.parent / ".env"):
         if not candidate.exists():
             continue
         for line in candidate.read_text(encoding="utf-8").splitlines():
@@ -39,7 +41,7 @@ def main() -> int:
     parser.add_argument(
         "--chunks",
         type=Path,
-        default=Path(__file__).resolve().parent.parent / "corpus" / "chunks.jsonl",
+        default=paths.corpus_dir() / "chunks.jsonl",
     )
     parser.add_argument("--url", default=os.getenv("QDRANT_URL"))
     parser.add_argument("--api-key", default=os.getenv("QDRANT_API_KEY"))

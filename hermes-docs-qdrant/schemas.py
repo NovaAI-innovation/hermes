@@ -25,6 +25,10 @@ SEARCH = {
                     "type": "string",
                     "description": "Optional filter. One of: reference, guide, feature, messaging, developer, getting-started.",
                 },
+                "source": {
+                    "type": "string",
+                    "description": "Optional filter by documentation source, e.g. 'hermes' or 'llmstxt'.",
+                },
                 "section": {
                     "type": "string",
                     "description": "Optional filter, e.g. 'Using Hermes', 'Core Features', 'Reference'.",

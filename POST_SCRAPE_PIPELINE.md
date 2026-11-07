@@ -1,21 +1,30 @@
 # Hermes docs — post-scrape RAG pipeline architecture
 
-This document describes the pipeline that turns Crawl4AI output in `docs/` into a retrieval-ready corpus. It assumes upstream scraping is handled by `scrape_llms.py` and `llms.txt`.
+This document describes the pipeline that turns Crawl4AI output in `docs/` into a retrieval-ready corpus. It assumes upstream scraping is handled by `pipeline/scrape.py` and `sources.yaml`.
 
 ## Implementation status
 
-- Stages 1–4 and retrieval/eval are implemented in `pipeline/` (**reference implementation only** — the production path is the Qdrant plugin below).
-- The Hermes integration lives in `hermes-docs-qdrant/`: a standalone plugin that ingests `corpus/chunks.jsonl` into Qdrant and exposes `docs_search` / `docs_read` / `docs_outline` to the agent. See its `README.md`.
+- Stages 1–3 (normalize, enrich, chunk) are implemented and **vendored into the plugin** at `hermes-docs-qdrant/pipeline/`. They are the production path.
+- The FAISS/BM25 stages (4 Index, 5 Retrieve, 6 Eval) in this document are a **reference implementation only**; the production retrieval path is Qdrant.
+- The Hermes integration lives in `hermes-docs-qdrant/`: a self-contained plugin that scrapes, builds the corpus, embeds into Qdrant and exposes `docs_search` / `docs_read` / `docs_outline` to the agent. See its `README.md`.
 
 ## Quick start
 
 ```powershell
-Set-Location pipeline
-python run_pipeline.py --eval          # normalize -> enrich -> chunk -> index -> eval
-python run_pipeline.py --from chunk    # resume after a stage
-python retrieve.py "configure OpenAI endpoint"
-python retrieve.py --json --doc-type reference "environment variables"
+Set-Location hermes-docs-qdrant
+python cli.py fetch --recreate    # scrape -> build -> index
+python cli.py status              # data home, counts, collection health
+python cli.py search "configure OpenAI endpoint"
 ```
+
+All generated data (sources, corpus, Qdrant store) resolves to the plugin data
+home — `$HERMES_HOME/plugin-data/hermes-docs-qdrant/` when installed, or
+`hermes-docs-qdrant/.data/` in a checkout — never the install tree. See
+`pipeline/paths.py`.
+
+The table below describes the reference FAISS implementation, which is retained
+as design documentation; the vendored stages use the same input/output shapes
+under the plugin data home instead of the repo root.
 
 | Stage | Script | Input → Output |
 |-------|--------|----------------|

@@ -45,6 +45,7 @@ def docs_search(args: dict, **kwargs) -> str:
             limit=limit,
             doc_type=(args or {}).get("doc_type") or None,
             section=(args or {}).get("section") or None,
+            source=(args or {}).get("source") or None,
         )
         return json.dumps(
             {

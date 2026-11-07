@@ -1,0 +1,115 @@
+# Source registry. Every llms.txt you list here is scraped, normalized,
+# chunked and indexed into ONE corpus. Order does not matter.
+#
+# Per source:
+#   name        stable id; becomes the chunk prefix, payload field and filter value.
+#   llms_txt    https:// URL, or a path relative to this file.
+#   title       display name used in citations and the outline tool.
+#   include     optional list of regexes; URLs must match at least one.
+#   exclude     optional list of regexes; matching URLs are dropped.
+#   doc_types   optional path-prefix -> doc_type map (first match wins).
+#   normalize   optional chrome-stripping overrides (defaults cover Docusaurus
+#               and most documentation generators).
+
+# Where per-source directories live. Each source becomes
+#   <root>/<name>/llms.txt, <root>/<name>/docs/, <root>/<name>/clean/
+# Relative to this file.
+root: sources
+
+defaults:
+  doc_types:
+    reference/: reference
+    reference: reference
+    api/: reference
+    guides/: guide
+    guide/: guide
+    tutorials/: guide
+    getting-started/: guide
+    concepts/: guide
+    developer/: developer
+    contributing: developer
+  exclude:
+    - "/zh-Hans/"
+    - "/zh-CN/"
+    - "/ja/"
+    - "/ko/"
+
+sources:
+  - name: hermes
+    title: Hermes Agent
+    llms_txt: https://hermes-agent.nousresearch.com/docs/llms.txt
+    exclude:
+      - "/zh-Hans/"
+    doc_types:
+      reference/: reference
+      developer-guide/: developer
+      user-guide/messaging/: messaging
+      user-guide/features/: feature
+      user-guide/: guide
+      getting-started/: getting-started
+      guides/: guide
+      integrations/: guide
+    normalize:
+      # Docusaurus sidebar/footer markers, in priority order.
+      footer_markers:
+        - '^\[.*\]\(https://github\.com/.*/edit/'
+        - '^Built by \['
+        - '^Docs\s*$'
+        - '^Community\s*$'
+        - '^More\s*$'
+
+  - name: llmstxt
+    title: llms.txt Specification
+    llms_txt: https://llmstxt.org/llms.txt
+    doc_types:
+      index: reference
+      intro: reference
+      ed: guide
+
+  - name: portkey
+    title: Portkey AI Gateway
+    llms_txt: https://portkey.com.cn/docs/llms.txt
+    # The regional index on .com.cn points at the primary docs host; treat that
+    # host as home so paths do not grow a redundant _docs.portkey.ai/ prefix.
+    doc_host: docs.portkey.ai
+    # The index lists a handful of off-host links (json-schema.org,
+    # raw.githubusercontent.com); keep only Portkey's own docs.
+    include:
+      - '^https://docs\.portkey\.ai/'
+    # The index also lists build artifacts (package.json, package-lock.json),
+    # which are not documentation and fail to render.
+    exclude:
+      - '/package(-lock)?\.json$'
+    doc_types:
+      api-reference/admin-api/: reference
+      api-reference/inference-api/: reference
+      api-reference/sdk/: reference
+      api-reference/: reference
+      product/administration/: reference
+      product/model-catalog/: reference
+      product/mcp-gateway/: guide
+      product/agent-gateway/: guide
+      product/ai-gateway/: guide
+      product/guardrails/: guide
+      product/observability/: guide
+      product/prompt-engineering-studio/: guide
+      product/enterprise-offering/: guide
+      product/: guide
+      guides/getting-started/: getting-started
+      guides/: guide
+      integrations/: guide
+      self-hosting/: guide
+      changelog/: changelog
+      default: guide
+
+# Add more sources below, for example:
+#
+#  - name: langchain
+#    title: LangChain
+#    llms_txt: https://python.langchain.com/llms.txt
+#
+#  - name: internal
+#    title: Internal Handbook
+#    llms_txt: ./vendor/internal-llms.txt
+#    include:
+#      - "^https://handbook\\.example\\.com/"

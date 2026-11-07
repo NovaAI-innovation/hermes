@@ -4,3 +4,6 @@ __pycache__/
 .data-test/
 .data-offline/
 .env
+sources/
+corpus/
+scrape_manifest.json

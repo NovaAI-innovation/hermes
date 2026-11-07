@@ -16,6 +16,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import store as S  # noqa: E402
 
+from pipeline import paths  # noqa: E402
+
 DIM = S.EMBED_DIM
 
 
@@ -55,7 +57,7 @@ def main() -> int:
 
     os.environ["OPENROUTER_API_KEY"] = "offline-test"
 
-    chunks = Path(__file__).resolve().parent.parent / "corpus" / "chunks.jsonl"
+    chunks = paths.corpus_dir() / "chunks.jsonl"
     if not chunks.exists():
         print(f"missing {chunks}")
         return 1
