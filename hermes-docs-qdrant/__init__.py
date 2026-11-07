@@ -63,8 +63,38 @@ def register(ctx):
         handler=tools.docs_outline,
         check_fn=_available,
     )
+    ctx.register_tool(
+        name="docs_search_many",
+        toolset="hermes_docs",
+        schema=schemas.SEARCH_MANY,
+        handler=tools.docs_search_many,
+        check_fn=_available,
+    )
+    ctx.register_tool(
+        name="docs_list",
+        toolset="hermes_docs",
+        schema=schemas.LIST_DOCS,
+        handler=tools.docs_list,
+        check_fn=_available,
+    )
+    ctx.register_tool(
+        name="docs_stats",
+        toolset="hermes_docs",
+        schema=schemas.STATS,
+        handler=tools.docs_stats,
+        check_fn=_available,
+    )
+    ctx.register_tool(
+        name="docs_rebuild",
+        toolset="hermes_docs",
+        schema=schemas.REBUILD,
+        handler=tools.docs_rebuild,
+        # Rebuild must stay callable even when the collection is empty or
+        # unreachable -- that is precisely when it is needed.
+        check_fn=None,
+    )
 
-    logger.info("hermes-docs-qdrant registered 3 tools")
+    logger.info("hermes-docs-qdrant registered 7 tools")
 
 
 __all__ = ["register", "schemas", "tools", "__version__"]

@@ -7,7 +7,7 @@ tools.
 
 - **Sources:** any number, declared in `sources.yaml` (Hermes, llms.txt spec, Portkey, …).
 - **Vectors:** dense `qwen/qwen3-embedding-4b` (2,560-dim, via OpenRouter) + sparse `Qdrant/bm25` (FastEmbed), fused with RRF.
-- **Tools:** `docs_search`, `docs_read`, `docs_outline`.
+- **Tools:** 7 — retrieval (`docs_search`, `docs_search_many`, `docs_read`), discovery (`docs_outline`, `docs_list`, `docs_stats`), and lifecycle (`docs_rebuild`).
 
 ## Where data lives
 
@@ -121,11 +121,17 @@ Requires `OPENROUTER_API_KEY` (declared in `plugin.yaml` so the host prompts for
 
 | Tool | Purpose |
 |---|---|
-| `docs_search` | Hybrid search; filters on `doc_type`, `section`, `source`. Returns ranked passages + `source_url`. |
-| `docs_read` | Full page by `doc_id` (concatenated chunks, truncatable). |
-| `docs_outline` | Corpus outline (sections + counts) or one page's headings. |
+| `docs_search` | Hybrid (dense + BM25, RRF) search with filters on `source`, `doc_type`, `section`. Returns ranked passages + `source_url`. |
+| `docs_search_many` | Several queries in one call, results grouped per query. For comparing sub-questions. |
+| `docs_read` | Full page by source-qualified `doc_id`, reassembled in chunk order. |
+| `docs_outline` | Corpus overview (sources, doc types, sections, counts) or one page's headings. |
+| `docs_list` | Document catalog filtered by `source`, `doc_type`, or `doc_id` prefix. |
+| `docs_stats` | Collection health and size, with a per-source breakdown. |
+| `docs_rebuild` | Rebuild the corpus from `sources.yaml`: optional re-scrape, then normalize → enrich → chunk → re-index. |
 
-All handlers return JSON and never raise.
+All handlers return JSON and never raise. The retrieval tools hide themselves
+(`check_fn`) when Qdrant is unreachable; `docs_rebuild` stays callable precisely
+so it can repair an empty or broken collection.
 
 ## Verify without credentials
 

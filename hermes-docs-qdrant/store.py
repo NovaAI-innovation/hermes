@@ -333,6 +333,143 @@ class DocsStore:
             for (s, d), n in sorted(counts.items(), key=lambda kv: -kv[1])
         ]
 
+    def search_many(
+        self,
+        queries: list[str],
+        limit: int | None = None,
+        doc_type: str | None = None,
+        section: str | None = None,
+        source: str | None = None,
+    ) -> dict[str, list[dict]]:
+        """Run several queries, keeping results separated by query.
+
+        A single query answers "what does the corpus say about X"; several
+        compare sub-questions in one call, e.g. ["rerank", "guardrails"].
+        """
+        out: dict[str, list[dict]] = {}
+        for q in queries:
+            q = q.strip()
+            if not q:
+                continue
+            out[q] = self.search(
+                q, limit=limit, doc_type=doc_type, section=section, source=source
+            )
+        return out
+
+    def list_documents(
+        self,
+        source: str | None = None,
+        doc_type: str | None = None,
+        prefix: str | None = None,
+        limit: int = 200,
+    ) -> list[dict]:
+        """Catalog of distinct documents, ordered by doc_id.
+
+        Scrolls chunk payloads and deduplicates; cheaper than scanning the
+        corpus JSONL and reflects exactly what the collection holds.
+        """
+        from qdrant_client.http import models as qm
+
+        conditions = []
+        if source:
+            conditions.append(
+                qm.FieldCondition(key="source", match=qm.MatchValue(value=source))
+            )
+        if doc_type:
+            conditions.append(
+                qm.FieldCondition(key="doc_type", match=qm.MatchValue(value=doc_type))
+            )
+
+        docs: dict[str, dict] = {}
+        offset = None
+        client = self.client()
+        while len(docs) < limit:
+            points, offset = client.scroll(
+                collection_name=self.settings.collection,
+                scroll_filter=qm.Filter(must=conditions) if conditions else None,
+                limit=512,
+                offset=offset,
+                with_payload=["doc_id", "title", "doc_type", "source", "source_url", "section"],
+            )
+            for p in points:
+                payload = p.payload or {}
+                doc_id = payload.get("doc_id", "")
+                if not doc_id or doc_id in docs:
+                    continue
+                if prefix and not doc_id.startswith(prefix):
+                    continue
+                docs[doc_id] = {
+                    "doc_id": doc_id,
+                    "title": payload.get("title", ""),
+                    "doc_type": payload.get("doc_type", ""),
+                    "source": payload.get("source", ""),
+                    "source_url": payload.get("source_url", ""),
+                    "section": payload.get("section", ""),
+                }
+                if len(docs) >= limit:
+                    break
+            if offset is None:
+                break
+        return [docs[k] for k in sorted(docs)]
+
+    def corpus_stats(self) -> dict[str, Any]:
+        """Per-source document and chunk counts, plus collection size."""
+        from qdrant_client.http import models as qm
+
+        counts: dict[str, dict[str, Any]] = {}
+        seen_docs: set[str] = set()
+        offset = None
+        client = self.client()
+        while True:
+            points, offset = client.scroll(
+                collection_name=self.settings.collection,
+                limit=512,
+                offset=offset,
+                with_payload=["doc_id", "source", "doc_type"],
+            )
+            for p in points:
+                payload = p.payload or {}
+                src = payload.get("source", "") or "unknown"
+                bucket = counts.setdefault(
+                    src, {"source": src, "chunks": 0, "documents": 0, "doc_types": {}}
+                )
+                bucket["chunks"] += 1
+                doc_id = payload.get("doc_id", "")
+                if doc_id and doc_id not in seen_docs:
+                    seen_docs.add(doc_id)
+                    bucket["documents"] += 1
+                dt = payload.get("doc_type", "") or "default"
+                bucket["doc_types"][dt] = bucket["doc_types"].get(dt, 0) + 1
+            if offset is None:
+                break
+
+        ok, detail = self.health()
+        return {
+            "collection": self.settings.collection,
+            "reachable": ok,
+            "detail": detail,
+            "total_documents": len(seen_docs),
+            "total_chunks": sum(b["chunks"] for b in counts.values()),
+            "by_source": sorted(counts.values(), key=lambda b: -b["chunks"]),
+        }
+
+    def collection_manifest(self) -> dict[str, Any] | None:
+        """The corpus manifest written at build time, if present."""
+        try:
+            from .pipeline import paths  # type: ignore
+        except Exception:  # noqa: BLE001
+            try:
+                from pipeline import paths  # type: ignore
+            except Exception:  # noqa: BLE001
+                return None
+        path = paths.corpus_dir() / "manifest.json"
+        if not path.exists():
+            return None
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            return None
+
 
 def _to_result(point) -> dict:
     payload = getattr(point, "payload", None) or {}

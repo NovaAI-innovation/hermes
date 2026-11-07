@@ -1,6 +1,6 @@
 name: hermes-docs-qdrant
 
-version: 2.0.1
+version: 2.1.0
 
 description: >-
 
@@ -20,9 +20,17 @@ provides_tools:
 
   - docs_search
 
+  - docs_search_many
+
   - docs_read
 
   - docs_outline
+
+  - docs_list
+
+  - docs_stats
+
+  - docs_rebuild
 
 requires_env:
 

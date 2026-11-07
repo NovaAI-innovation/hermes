@@ -135,8 +135,7 @@ async def scrape_source(
     batch_size: int,
     skip_existing: bool,
 ) -> dict:
-    (crawl4ai is imported lazily below; it is scrape-time only)
-
+    # crawl4ai is imported lazily below; it is scrape-time only.
     url_to_link = {link.url: link for link in links}
     urls = [link.url for link in links]
     if skip_existing:

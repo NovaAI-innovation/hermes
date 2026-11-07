@@ -92,9 +92,30 @@ def main() -> int:
     sections = st.list_sections()
     print(f"sections: {len(sections)} -> {sections[:3]}")
 
+    # Newer surfaces: multi-query, catalog, stats, source filter.
+    many = st.search_many(["telegram", "cron"], limit=2)
+    print(f"search_many: {[(k, len(v)) for k, v in many.items()]}")
+
+    docs = st.list_documents(limit=200)
+    print(f"list_documents: {len(docs)} docs")
+
+    corpus = st.corpus_stats()
+    print(
+        f"corpus_stats: {corpus['total_documents']} docs, "
+        f"{corpus['total_chunks']} chunks"
+    )
+
+    sources = {d.get("source") for d in docs if d.get("source")}
+    filtered_by_source = st.search("gateway", limit=2, source=sorted(sources)[0]) if sources else []
+    print(f"filtered source={sorted(sources)[0] if sources else '-'}: {len(filtered_by_source)} results")
+
     assert ok, "collection should be reachable"
     assert results, "search should return results"
     assert all(r["source_url"] for r in results), "results must carry citations"
+    assert many and all(many.values()), "search_many should answer every query"
+    assert docs, "list_documents should return the catalog"
+    assert corpus["total_chunks"] >= len(rows), "stats should see every chunk"
+    assert all(r["source"] == sorted(sources)[0] for r in filtered_by_source), "source filter must be honored"
     print("\nOFFLINE TEST PASSED")
     return 0
 
