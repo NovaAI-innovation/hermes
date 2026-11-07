@@ -76,6 +76,9 @@ def sources_root() -> Path:
 
 
 def corpus_dir() -> Path:
+    override = os.getenv("HERMES_DOCS_CORPUS")
+    if override:
+        return Path(override).expanduser().resolve()
     return ensure_home() / "corpus"
 
 

@@ -7,11 +7,18 @@ or a missing API key disables the tools instead of breaking Hermes startup.
 from __future__ import annotations
 
 import json
+import logging
 import os
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from functools import wraps
 from pathlib import Path
-from typing import Any, Iterable
+from threading import RLock
+from typing import Any
+from uuid import uuid4
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_COLLECTION = "hermes_docs"
 PLUGIN_ROOT = Path(__file__).resolve().parent
@@ -47,7 +54,7 @@ class Settings:
     @classmethod
     def resolve(cls, config: dict | None = None) -> "Settings":
         config = config or {}
-        url = config.get("url") or os.getenv("QDRANT_URL")
+        url = config.get("url") or (None if config.get("path") else os.getenv("QDRANT_URL"))
         api_key = config.get("api_key") or os.getenv("QDRANT_API_KEY")
         path = config.get("path") or os.getenv("QDRANT_PATH")
         if not url and not path:
@@ -118,7 +125,7 @@ class QueryEmbedder:
                     "environment) and restart the gateway. "
                     "Call docs_diagnostics to confirm."
                 )
-            self._client = OpenAI(base_url=self.base, api_key=key)
+            self._client = OpenAI(base_url=self.base, api_key=key, timeout=15, max_retries=1)
         return self._client
 
     def embed_query(self, text: str) -> list[float]:
@@ -132,11 +139,8 @@ class SparseEmbedder:
 
     def __init__(self):
         self._model = None
-        self._broken = False
 
     def available(self) -> bool:
-        if self._broken:
-            return False
         try:
             import fastembed  # noqa: F401
         except ImportError:
@@ -153,7 +157,7 @@ class SparseEmbedder:
     def embed(self, texts: list[str]) -> list[tuple[list[int], list[float]]]:
         out = []
         for emb in self._get_model().embed(texts):
-            out.append((list(emb.indices), list(emb.values)))
+            out.append(([int(i) for i in emb.indices], [float(v) for v in emb.values]))
         return out
 
     def embed_one(self, text: str):
@@ -163,21 +167,31 @@ class SparseEmbedder:
 # ----------------------------------------------------------------------- store
 
 
+def _locked(method):
+    @wraps(method)
+    def call(self, *args, **kwargs):
+        with self._db_lock:
+            return method(self, *args, **kwargs)
+
+    return call
+
+
 class DocsStore:
     """Hybrid retrieval over the Qdrant collection."""
 
     def __init__(self, settings: Settings):
         self.settings = settings
+        self._db_lock = RLock()
+        self._embed_lock = RLock()
         self._client = None
         self._dense = QueryEmbedder()
         self._sparse = SparseEmbedder()
 
     # -- client ---------------------------------------------------------
+    @_locked
     def client(self):
         if self._client is None:
             from qdrant_client import QdrantClient
-            from qdrant_client.http import models as qm
-
             # Local (embedded) mode passes path; server mode passes url.
             # Passing both makes qdrant-client prefer the remote and silently
             # ignore the embedded store, so the kwargs are exclusive here.
@@ -188,14 +202,54 @@ class DocsStore:
                     timeout=10,
                 )
             else:
-                self._client = QdrantClient(path=self.settings.path, timeout=10)
-            self._qm = qm
+                self._client = QdrantClient(
+                    path=self.settings.path, timeout=10, force_disable_check_same_thread=True
+                )
         return self._client
 
-    def health(self) -> tuple[bool, str]:
+    @_locked
+    def close(self) -> None:
+        if self._client is not None:
+            self._client.close()
+            self._client = None
+
+    @property
+    def active_alias(self) -> str:
+        return f"{self.settings.collection}__active"
+
+    @_locked
+    def active_collection(self) -> str:
+        return self._alias_target() or self.settings.collection
+
+    def _alias_target(self) -> str | None:
+        for alias in self.client().get_aliases().aliases:
+            if alias.alias_name == self.active_alias:
+                return alias.collection_name
+        return None
+
+    @_locked
+    def publish_collection(self, name: str) -> str | None:
+        from qdrant_client.http import models as qm
+
+        client = self.client()
+        current = self._alias_target()
+        previous = current or self.settings.collection
+        actions = []
+        if current:
+            actions.append(qm.DeleteAliasOperation(delete_alias=qm.DeleteAlias(alias_name=self.active_alias)))
+        actions.append(qm.CreateAliasOperation(
+            create_alias=qm.CreateAlias(collection_name=name, alias_name=self.active_alias)
+        ))
+        existed = client.collection_exists(previous)
+        if not client.update_collection_aliases(actions):
+            raise RuntimeError("Qdrant did not confirm the collection switch")
+        return previous if existed else None
+
+    @_locked
+    def health(self, collection: str | None = None) -> tuple[bool, str]:
         try:
             client = self.client()
-            info = client.get_collection(self.settings.collection)
+            info = client.get_collection(collection or self.active_collection())
             return True, f"{info.points_count or 0} points"
         except Exception as exc:  # noqa: BLE001 - surface to the model, never raise
             return False, f"{exc.__class__.__name__}: {str(exc)[:200]}"
@@ -216,14 +270,12 @@ class DocsStore:
         }
 
 
-    def ensure_collection(self, recreate: bool = False) -> None:
+    @_locked
+    def ensure_collection(self, name: str) -> None:
         from qdrant_client.http import models as qm
 
         client = self.client()
-        name = self.settings.collection
-        if recreate:
-            client.delete_collection(name)
-        elif client.collection_exists(name):
+        if client.collection_exists(name):
             return
 
         client.create_collection(
@@ -248,13 +300,11 @@ class DocsStore:
         doc_type: str | None = None,
         section: str | None = None,
         source: str | None = None,
+        details: dict | None = None,
     ) -> list[dict]:
         from qdrant_client.http import models as qm
 
         limit = limit or self.settings.top_k
-        client = self.client()
-        name = self.settings.collection
-
         conditions = []
         if doc_type:
             conditions.append(
@@ -270,84 +320,98 @@ class DocsStore:
             )
         query_filter = qm.Filter(must=conditions) if conditions else None
 
-        dense_vec = self._dense.embed_query(query)
-
-        # NOTE: on RRF fusion the top-level query_filter is not applied to the
-        # prefetch legs; each leg must carry the filter itself or filtering is
-        # silently bypassed (verified against qdrant-client local mode).
-        prefetch = [
-            qm.Prefetch(
-                query=dense_vec,
-                using=DENSE_VEC,
-                filter=query_filter,
-                limit=max(limit * 4, 20),
-            )
-        ]
-        if self._sparse.available():
+        vectors = {}
+        warnings = []
+        with self._embed_lock:
             try:
-                idx, vals = self._sparse.embed_one(query)
-                prefetch.append(
-                    qm.Prefetch(
-                        query=qm.SparseVector(indices=idx, values=vals),
-                        using=SPARSE_VEC,
-                        filter=query_filter,
-                        limit=max(limit * 4, 20),
-                    )
-                )
-            except Exception:  # sparse is an enhancement, never a blocker
-                pass
-
-        if len(prefetch) > 1:
+                vectors[DENSE_VEC] = self._dense.embed_query(query)
+            except Exception as exc:
+                reason = "OPENROUTER_API_KEY is missing" if not os.getenv("OPENROUTER_API_KEY") else type(exc).__name__
+                warnings.append(f"Dense embeddings unavailable ({reason})")
             try:
-                points = client.query_points(
-                    collection_name=name,
-                    prefetch=prefetch,
-                    query=qm.FusionQuery(fusion=qm.Fusion.RRF),
-                    limit=limit,
-                    query_filter=query_filter,
-                    with_payload=True,
-                ).points
-            except Exception:
-                points = self._dense_only(query_filter, limit, dense_vec)
-        else:
-            points = self._dense_only(query_filter, limit, dense_vec)
+                if self._sparse.available():
+                    indices, values = self._sparse.embed_one(query)
+                    if indices:
+                        vectors[SPARSE_VEC] = qm.SparseVector(indices=indices, values=values)
+                else:
+                    warnings.append("BM25 embeddings unavailable (FastEmbed is missing)")
+            except Exception as exc:
+                warnings.append(f"BM25 embeddings unavailable ({type(exc).__name__})")
 
+        if not vectors:
+            raise RuntimeError(f"{' '.join(warnings)} No search vectors available. Call docs_diagnostics.")
+
+        with self._db_lock:
+            client = self.client()
+            name = self.active_collection()
+            options = {
+                "collection_name": name,
+                "limit": limit,
+                "query_filter": query_filter,
+                "with_payload": True,
+            }
+            points = None
+            if len(vectors) == 2:
+                try:
+                    # Each prefetch leg needs its own filter for RRF.
+                    points = client.query_points(
+                        **options,
+                        prefetch=[
+                            qm.Prefetch(query=vector, using=kind, filter=query_filter, limit=max(limit * 4, 20))
+                            for kind, vector in vectors.items()
+                        ],
+                        query=qm.FusionQuery(fusion=qm.Fusion.RRF),
+                    ).points
+                    mode = "hybrid"
+                except Exception as exc:
+                    warnings.append(f"Hybrid search unavailable ({type(exc).__name__})")
+            if points is None:
+                for mode, vector in vectors.items():
+                    try:
+                        points = client.query_points(**options, query=vector, using=mode).points
+                        break
+                    except Exception as exc:
+                        warnings.append(f"{mode} search unavailable ({type(exc).__name__})")
+                if points is None:
+                    raise RuntimeError(f"{' '.join(warnings)} Call docs_diagnostics.")
+
+        if details is not None:
+            details.update(mode=mode)
+            if warnings:
+                details["warnings"] = warnings
         return [_to_result(p) for p in points if (p.score or 0) >= self.settings.score_floor]
 
-    def _dense_only(self, query_filter, limit: int, vector: list[float]):
-        return self.client().query_points(
-            collection_name=self.settings.collection,
-            query=vector,
-            using=DENSE_VEC,
-            query_filter=query_filter,
-            limit=limit,
-            with_payload=True,
-        ).points
-
     # -- reads ----------------------------------------------------------
-    def get_doc_chunks(self, doc_id: str, limit: int = 40) -> list[dict]:
+    @_locked
+    def get_doc_chunks(self, doc_id: str, limit: int | None = 40) -> list[dict]:
         from qdrant_client.http import models as qm
 
-        points, _ = self.client().scroll(
-            collection_name=self.settings.collection,
-            scroll_filter=qm.Filter(
-                must=[qm.FieldCondition(key="doc_id", match=qm.MatchValue(value=doc_id))]
-            ),
-            limit=limit,
-            with_payload=True,
-        )
-        rows = [_to_result(p) for p in points]
-        rows.sort(key=lambda r: r.get("chunk_id", ""))
-        return rows
+        client = self.client()
+        name = self.active_collection()
+        query_filter = qm.Filter(must=[qm.FieldCondition(key="doc_id", match=qm.MatchValue(value=doc_id))])
+        rows = []
+        offset = None
+        while True:
+            points, offset = client.scroll(
+                collection_name=name, scroll_filter=query_filter, offset=offset,
+                limit=256, with_payload=True,
+            )
+            rows.extend(_to_result(p) for p in points)
+            if offset is None:
+                break
+        rows.sort(key=_chunk_order)
+        return rows[:limit]
 
+    @_locked
     def list_sections(self) -> list[dict]:
         """Distinct (section, doc_type) counts for discovery."""
         client = self.client()
+        name = self.active_collection()
         counts: dict[tuple[str, str], int] = {}
         offset = None
         while True:
             points, offset = client.scroll(
-                collection_name=self.settings.collection,
+                collection_name=name,
                 limit=512,
                 offset=offset,
                 with_payload=["section", "doc_type"],
@@ -370,6 +434,8 @@ class DocsStore:
         doc_type: str | None = None,
         section: str | None = None,
         source: str | None = None,
+        errors: dict[str, str] | None = None,
+        details: dict[str, dict] | None = None,
     ) -> dict[str, list[dict]]:
         """Run several queries, keeping results separated by query.
 
@@ -377,15 +443,24 @@ class DocsStore:
         compare sub-questions in one call, e.g. ["rerank", "guardrails"].
         """
         out: dict[str, list[dict]] = {}
-        for q in queries:
-            q = q.strip()
+        for q in dict.fromkeys(query.strip() for query in queries):
             if not q:
                 continue
-            out[q] = self.search(
-                q, limit=limit, doc_type=doc_type, section=section, source=source
-            )
+            try:
+                query_details = {} if details is not None else None
+                out[q] = self.search(
+                    q, limit=limit, doc_type=doc_type, section=section, source=source, details=query_details,
+                )
+                if details is not None:
+                    details[q] = query_details
+            except Exception as exc:
+                if errors is None:
+                    raise
+                errors[q] = str(exc)
+                out[q] = []
         return out
 
+    @_locked
     def list_documents(
         self,
         source: str | None = None,
@@ -413,9 +488,10 @@ class DocsStore:
         docs: dict[str, dict] = {}
         offset = None
         client = self.client()
+        name = self.active_collection()
         while len(docs) < limit:
             points, offset = client.scroll(
-                collection_name=self.settings.collection,
+                collection_name=name,
                 scroll_filter=qm.Filter(must=conditions) if conditions else None,
                 limit=512,
                 offset=offset,
@@ -442,17 +518,17 @@ class DocsStore:
                 break
         return [docs[k] for k in sorted(docs)]
 
+    @_locked
     def corpus_stats(self) -> dict[str, Any]:
         """Per-source document and chunk counts, plus collection size."""
-        from qdrant_client.http import models as qm
-
         counts: dict[str, dict[str, Any]] = {}
         seen_docs: set[str] = set()
         offset = None
         client = self.client()
+        name = self.active_collection()
         while True:
             points, offset = client.scroll(
-                collection_name=self.settings.collection,
+                collection_name=name,
                 limit=512,
                 offset=offset,
                 with_payload=["doc_id", "source", "doc_type"],
@@ -473,9 +549,10 @@ class DocsStore:
             if offset is None:
                 break
 
-        ok, detail = self.health()
+        ok, detail = self.health(name)
         return {
             "collection": self.settings.collection,
+            "active_collection": name,
             "reachable": ok,
             "detail": detail,
             "total_documents": len(seen_docs),
@@ -483,7 +560,7 @@ class DocsStore:
             "by_source": sorted(counts.values(), key=lambda b: -b["chunks"]),
         }
 
-    def collection_manifest(self) -> dict[str, Any] | None:
+    def collection_manifest(self, active_collection: str | None = None) -> dict[str, Any] | None:
         """The corpus manifest written at build time, if present."""
         try:
             from .pipeline import paths  # type: ignore
@@ -492,11 +569,16 @@ class DocsStore:
                 from pipeline import paths  # type: ignore
             except Exception:  # noqa: BLE001
                 return None
-        path = paths.corpus_dir() / "manifest.json"
+        path = Path(self.settings.corpus_dir or paths.corpus_dir()) / "manifest.json"
         if not path.exists():
             return None
         try:
-            return json.loads(path.read_text(encoding="utf-8"))
+            manifest = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(manifest, dict) or manifest.get("indexed") is False:
+                return None
+            if active_collection and manifest.get("active_collection", active_collection) != active_collection:
+                return None
+            return manifest
         except Exception:  # noqa: BLE001
             return None
 
@@ -506,6 +588,7 @@ def _to_result(point) -> dict:
     score = getattr(point, "score", None)
     return {
         "chunk_id": payload.get("chunk_id", str(getattr(point, "id", ""))),
+        "chunk_index": payload.get("chunk_index"),
         "doc_id": payload.get("doc_id", ""),
         "title": payload.get("title", ""),
         "heading": payload.get("heading", ""),
@@ -517,6 +600,14 @@ def _to_result(point) -> dict:
         "source": payload.get("source", ""),
         "score": round(float(score or 0.0), 4),
     }
+
+
+def _chunk_order(row: dict) -> tuple:
+    index = row.get("chunk_index")
+    if isinstance(index, int):
+        return 0, index
+    stem, _, suffix = row["chunk_id"].rpartition("~")
+    return (1, stem, int(suffix)) if suffix.isdecimal() else (1, row["chunk_id"], 0)
 
 
 # ---------------------------------------------------------------------- ingest
@@ -536,12 +627,11 @@ def ingest(
     recreate: bool = False,
     batch_size: int = 32,
     limit: int | None = None,
-    progress=None,
+    progress: Callable[[int, int], None] | None = None,
+    *,
+    store: DocsStore | None = None,
 ) -> dict:
     """Embed and upsert chunks.jsonl into Qdrant. Returns a stats dict."""
-    from openai import OpenAI
-    from qdrant_client.http import models as qm
-
     key = os.getenv("OPENROUTER_API_KEY")
     if not key:
         raise RuntimeError("OPENROUTER_API_KEY is required to embed documents")
@@ -553,13 +643,53 @@ def ingest(
     ]
     if limit:
         rows = rows[:limit]
+    if not rows:
+        raise ValueError("No chunks to index. Check the configured sources and scrape output.")
+    if len({row["chunk_id"] for row in rows}) != len(rows):
+        raise ValueError("Duplicate chunk IDs in the corpus")
 
-    store = DocsStore(settings)
-    store.ensure_collection(recreate=recreate)
-    client = store.client()
-    name = settings.collection
+    owns_store = store is None
+    store = store or DocsStore(settings)
+    try:
+        name = f"{settings.collection}__build_{uuid4().hex}" if recreate else store.active_collection()
+        try:
+            store.ensure_collection(name)
+            result = _ingest_rows(rows, store, name, key, batch_size, progress)
+            if recreate:
+                with store._db_lock:
+                    if store.client().count(name, exact=True).count != len(rows):
+                        raise RuntimeError("Indexed point count does not match the corpus")
+        except Exception:
+            if recreate:
+                try:
+                    with store._db_lock:
+                        client = store.client()
+                        client.delete_collection(name)
+                        if os.name == "nt" and not settings.url:
+                            # Embedded Qdrant drops the collection before its SQLite
+                            # connection is collected. Windows still locks the files.
+                            from gc import collect
 
-    embedder = OpenAI(base_url=EMBED_BASE, api_key=key)
+                            collect()
+                            client.delete_collection(name)
+                except Exception:
+                    logger.warning("Could not discard staged collection %s", name)
+            raise
+        # If a server times out during the alias update, it might have committed.
+        # Keep the staged collection in that case.
+        if recreate:
+            result["previous_collection"] = store.publish_collection(name)
+        return {**result, "collection": settings.collection, "active_collection": name}
+    finally:
+        if owns_store:
+            store.close()
+
+
+def _ingest_rows(rows, store, name, key, batch_size, progress) -> dict:
+    from openai import OpenAI
+    from qdrant_client.http import models as qm
+
+    embedder = OpenAI(base_url=EMBED_BASE, api_key=key, timeout=60, max_retries=0)
     sparse = SparseEmbedder()
     use_sparse = sparse.available()
 
@@ -592,8 +722,13 @@ def ingest(
         batch = rows[i : i + batch_size]
         texts = [r.get("embed_text") or r["text"] for r in batch]
         resp = embed_with_retry(texts)
-        dense = [list(d.embedding) for d in sorted(resp.data, key=lambda d: d.index)]
+        ordered = sorted(resp.data, key=lambda item: item.index)
+        if [item.index for item in ordered] != list(range(len(batch))):
+            raise RuntimeError("Embedding provider returned an incomplete batch")
+        dense = [list(item.embedding) for item in ordered]
         sparse_vecs = sparse.embed(texts) if use_sparse else [None] * len(batch)
+        if len(sparse_vecs) != len(batch):
+            raise RuntimeError("Sparse embedder returned an incomplete batch")
 
         points = []
         for row, dvec, svec in zip(batch, dense, sparse_vecs):
@@ -606,6 +741,7 @@ def ingest(
                     vector=vector,
                     payload={
                         "chunk_id": row["chunk_id"],
+                        "chunk_index": row.get("chunk_index"),
                         "doc_id": row["doc_id"],
                         "title": row.get("title", ""),
                         "heading": row.get("heading", ""),
@@ -620,14 +756,14 @@ def ingest(
                 )
             )
 
-        client.upsert(collection_name=name, points=points, wait=True)
+        with store._db_lock:
+            store.client().upsert(collection_name=name, points=points, wait=True)
         upserted += len(points)
         if progress:
             progress(upserted, len(rows))
 
     return {
         "upserted": upserted,
-        "collection": name,
         "sparse": use_sparse,
         "seconds": round(time.time() - started, 1),
     }

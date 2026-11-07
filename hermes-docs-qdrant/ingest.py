@@ -47,7 +47,7 @@ def main() -> int:
     parser.add_argument("--api-key", default=os.getenv("QDRANT_API_KEY"))
     parser.add_argument("--path", default=os.getenv("QDRANT_PATH"))
     parser.add_argument("--collection", default=os.getenv("HERMES_DOCS_COLLECTION", DEFAULT_COLLECTION))
-    parser.add_argument("--recreate", action="store_true", help="drop and rebuild the collection")
+    parser.add_argument("--recreate", action="store_true", help="build and publish a replacement collection")
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--limit", type=int, default=None, help="ingest only the first N chunks")
     parser.add_argument("--check", action="store_true", help="connectivity check only")

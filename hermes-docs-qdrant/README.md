@@ -25,7 +25,7 @@ Layout under that home:
 
 ```
 <home>/sources.yaml          user-editable registry (seeded from default_sources.yaml)
-<home>/sources/<name>/       llms.txt, docs/, clean/
+<home>/sources/<name>/       llms.txt, pages.json, docs/, clean/
 <home>/corpus/               documents.jsonl, chunks.jsonl, parents.jsonl
 <home>/qdrant/               embedded Qdrant store
 <home>/.env                  optional, standalone
@@ -44,18 +44,22 @@ enable` refuse the plugin as unsatisfiable. Since `crawl4ai` is only needed to
 *crawl HTML pages*, it lives in the build step instead:
 
 ```powershell
-# Build env (yours, not Hermes's) — full toolchain
-python install.py --with-build       # creates .venv-build, installs requirements-build.txt
-
-# Hermes env — runtime only, resolved from plugin.yaml
-hermes plugins install ./hermes-docs-qdrant
+# From the repository root
+python -m venv .venv-build
+.\.venv-build\Scripts\python.exe -m pip install -r requirements-build.txt
+.\.venv-build\Scripts\crawl4ai-setup.exe  # needed for HTML sources
+$env:HERMES_DOCS_BUILD_PYTHON = (Resolve-Path .\.venv-build\Scripts\python.exe).Path
 ```
 
 `requirements.txt` at the repo root is the **runtime** set and is safe to
 install into the Hermes environment; `requirements-build.txt` is the corpus
 toolchain and must not be. `cli.py scrape` imports `crawl4ai` lazily and raises
 a clear message naming the missing package if HTML sources are queued without
-it. Raw-markdown `llms.txt` sources need only `httpx` and work either way.
+it. Fetching raw Markdown uses `httpx`. Both source formats require
+`tiktoken` to build chunks. On Linux and macOS, use `.venv-build/bin/python`
+and `.venv-build/bin/crawl4ai-setup`. Set `HERMES_DOCS_BUILD_PYTHON` in the
+gateway environment, or set the plugin's `build_python` to the absolute path
+of the build interpreter.
 
 ## Install
 
@@ -68,19 +72,18 @@ python install.py --with-build    # also create .venv-build for scraping
 python install.py --restart       # restart the gateway afterwards
 ```
 
-Then in Hermes:
+Install the plugin in Hermes from its repository subdirectory:
 
 ```powershell
-hermes plugins install ./hermes-docs-qdrant
+hermes plugins install NovaAI-innovation/hermes/hermes-docs-qdrant
 hermes plugins enable hermes-docs-qdrant
 hermes gateway restart            # a running process never switches envs
 ```
 
-Then, once, to build the corpus and vector store:
-
-```powershell
-python cli.py fetch --recreate
-```
+With the gateway running and the build interpreter configured, call
+`docs_rebuild` to populate the corpus. For a standalone build, set
+`HERMES_DOCS_HOME` to the intended data home and run
+`python hermes-docs-qdrant/cli.py fetch --recreate` with the build interpreter.
 
 `install.py` exists because the failure mode is silent. `hermes plugins install`
 resolves `plugin.yaml` and the tools register, but the **running** Hermes
@@ -152,7 +155,26 @@ sources:
     doc_host: docs.example.com   # only when links point at another host
 ```
 
-Then `python cli.py scrape --source mysource && python cli.py build && python cli.py index`.
+Then call `docs_rebuild` with `{"sources":["mysource"]}`. A local
+`llms_txt` path can be relative to `sources.yaml`. Its links should be
+absolute HTTP or HTTPS URLs.
+
+## Rebuild the corpus
+
+| Arguments to `docs_rebuild` | Behavior |
+|---|---|
+| `{}` | Read every configured `llms.txt`, download missing pages, and publish the combined index. |
+| `{"refresh":true}` | Download all listed pages again, including cached pages. |
+| `{"sources":["mysource"],"refresh":true}` | Refresh one source and include cached pages from the other configured sources. |
+| `{"scrape":false}` | Rebuild from the configured sources' cached pages. |
+| `{"reindex":false}` | Produce corpus artifacts without embedding or publishing an index. |
+
+The report gives per-source chunk counts, sources with no chunks, and the
+failed stage when applicable. Successful rebuilds publish through a Qdrant
+alias named `<collection>__active` after all points have been indexed and counted.
+The previous physical collection is retained for rollback, so successive rebuilds use additional
+storage. An empty build or a failed fetch or indexing stage leaves the
+current collection serving queries.
 
 ## Configuration
 
@@ -161,6 +183,7 @@ Environment variables or the plugin's `config.yaml` namespace:
 | Setting | Env | Default |
 |---|---|---|
 | Data home | `HERMES_DOCS_HOME` | Hermes `plugin-data` dir, else `<plugin>/.data` |
+| Build interpreter | `HERMES_DOCS_BUILD_PYTHON` | Gateway's Python |
 | Qdrant URL | `QDRANT_URL` | — (embedded store under the home) |
 | Qdrant API key | `QDRANT_API_KEY` | — |
 | Collection | `HERMES_DOCS_COLLECTION` | `hermes_docs` |
@@ -168,14 +191,17 @@ Environment variables or the plugin's `config.yaml` namespace:
 | Embedding endpoint | `HERMES_DOCS_EMBED_BASE` | `https://openrouter.ai/api/v1` |
 | Result count | `HERMES_DOCS_TOP_K` | `6` |
 
-Requires `OPENROUTER_API_KEY` (declared in `plugin.yaml` so the host prompts for it). Without it, the tools register and the corpus is readable, but `docs_search` cannot embed the query; `docs_diagnostics` reports the missing credential rather than the search failing with a bare `KeyError`.
+Indexing and dense search use `OPENROUTER_API_KEY`. Search falls back to BM25
+when the dense provider is unavailable and the collection has sparse vectors.
+If sparse search is unavailable, search uses dense vectors when available.
+Search responses report the mode and any fallback warnings.
 
 ## Tools
 
 | Tool | Purpose |
 |---|---|
 | `docs_search` | Hybrid (dense + BM25, RRF) search with filters on `source`, `doc_type`, `section`. Returns ranked passages + `source_url`. |
-| `docs_search_many` | Several queries in one call, results grouped per query. For comparing sub-questions. |
+| `docs_search_many` | Several queries in one call, with shared filters and results, search mode and any errors reported per query. |
 | `docs_read` | Full page by source-qualified `doc_id`, reassembled in chunk order. |
 | `docs_outline` | Corpus overview (sources, doc types, sections, counts) or one page's headings. |
 | `docs_list` | Document catalog filtered by `source`, `doc_type`, or `doc_id` prefix. |
@@ -195,6 +221,7 @@ python test_contract.py      # manifest / requirements / compat.py bounds agree
 python test_availability.py  # hard failure hides + reports; soft failure does not
 python test_registration.py  # 8 tools register; search returns cited passages
 python test_offline.py       # stub embedder; ingest, hybrid query, filters, reads
+python test_rebuild.py       # isolated HTTP sources, embedded Qdrant, rebuild and fallback
 ```
 
 ## Notes

@@ -10,7 +10,7 @@ SEARCH = {
     "function": {
         "name": "docs_search",
         "description": (
-            "Hybrid (dense + BM25) search across every ingested documentation "
+            "Hybrid (dense + BM25) search with single-mode fallback across every ingested documentation "
             "source. Use for any question about how a library, API, gateway, or "
             "the llms.txt specification works. Returns ranked passages, each with "
             "doc_id, source, source_url, heading and text. Call docs_read with a "
@@ -62,7 +62,7 @@ SEARCH_MANY = {
                 "queries": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "description": "Two or more search queries.",
+                    "description": "One to ten search queries.",
                 },
                 "limit": {
                     "type": "integer",
@@ -70,6 +70,7 @@ SEARCH_MANY = {
                 },
                 "source": {"type": "string", "description": "Restrict all queries to one corpus."},
                 "doc_type": {"type": "string", "description": "Restrict all queries by document type."},
+                "section": {"type": "string", "description": "Restrict all queries to one top-level section."},
             },
             "required": ["queries"],
         },
@@ -169,28 +170,26 @@ REBUILD = {
     "function": {
         "name": "docs_rebuild",
         "description": (
-            "Rebuild the local corpus from the sources configured in sources.yaml: "
-            "optionally re-scrape each llms.txt, then normalize, enrich, chunk and "
-            "re-index into Qdrant. This is long-running (minutes) and replaces the "
-            "collection. Use when the user asks to refresh, update or re-ingest the "
-            "documentation. Set scrape=false to rebuild only from already-downloaded "
-            "pages. Requires crawl4ai in the build environment when scrape=true."
+            "Build the corpus from sources.yaml. Read configured llms.txt indexes and "
+            "download new pages by default, then normalize, enrich, chunk and index "
+            "in Qdrant. The current index serves retrieval until the replacement is "
+            "ready. The tool can take several minutes. HTML crawling requires Crawl4AI."
         ),
         "parameters": {
             "type": "object",
             "properties": {
                 "scrape": {
                     "type": "boolean",
-                    "description": "Re-download every configured source first (default false).",
+                    "description": "Read source indexes and fetch missing pages (default true). Set false for a cached-only build.",
                 },
                 "sources": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "description": "Limit scraping to these source names; omit for all configured sources.",
+                    "description": "Limit fetching to these names. Cached pages from other configured sources are included in the build.",
                 },
                 "reindex": {
                     "type": "boolean",
-                    "description": "Rebuild the Qdrant collection after chunking (default true).",
+                    "description": "Publish the new Qdrant index (default true). Set false to build artifacts only.",
                 },
                 "refresh": {
                     "type": "boolean",

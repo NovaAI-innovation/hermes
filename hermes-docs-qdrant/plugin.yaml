@@ -6,8 +6,8 @@ description: >-
 
   Self-contained documentation corpus plugin. Serves hybrid retrieval over any
   set of llms.txt docs, embedded with qwen/qwen3-embedding-4b into Qdrant, as
-  agent tools. Corpus building is done ahead of time via cli.py; only the
-  runtime tools are installed as dependencies. All generated data lives in the
+  agent tools. Build the corpus with docs_rebuild or cli.py using a separate
+  build environment. All generated data lives in the
   plugin data home, not the install tree.
 
 author: local
@@ -34,7 +34,7 @@ requires_env:
 
   - name: OPENROUTER_API_KEY
 
-    description: Used to embed queries with qwen/qwen3-embedding-4b
+    description: Used to embed documents and queries with qwen/qwen3-embedding-4b
 
     url: https://openrouter.ai/keys
 
@@ -52,8 +52,7 @@ requires_env:
 # The corpus toolchain (crawl4ai, tiktoken, sentence-transformers) is
 # deliberately absent: crawl4ai pins snowballstemmer<3, which conflicts with
 # Hermes core's snowballstemmer==3.1.1 on Python >= 3.14. Build the corpus in
-# its own environment with requirements-build.txt; the runtime tools only read
-# the finished store.
+# its own environment with requirements-build.txt.
 python_dependencies:
 
   - qdrant-client>=1.10.0,<2.0

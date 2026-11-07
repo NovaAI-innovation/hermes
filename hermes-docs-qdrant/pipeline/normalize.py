@@ -111,10 +111,16 @@ def main() -> int:
         docs = 0
         raw_bytes = clean_bytes = 0
         written: set[Path] = set()
+        manifest = source.dir / "pages.json"
+        active = set(json.loads(manifest.read_text(encoding="utf-8"))) if manifest.is_file() else None
 
         for raw_path in sorted(source.docs_dir.rglob("*.md")):
             rel = raw_path.relative_to(source.docs_dir)
+            if active is not None and rel.as_posix() not in active:
+                continue
             meta, body = parse_front_matter(raw_path.read_text(encoding="utf-8"))
+            if meta.get("source") and not source.allows(meta["source"]):
+                continue
 
             if meta.get("success", "True").lower() == "false":
                 report["skipped"].append(

@@ -218,6 +218,7 @@ def main() -> int:
             _, target_max = targets.get(doc["doc_type"], targets["default"])
             sections = split_sections(doc["body"])
             body_heading_counts: dict[str, int] = {}
+            chunk_index = 0
 
             for kind, heading, text in sections:
                 pieces = (
@@ -244,6 +245,7 @@ def main() -> int:
                         )
                         yield {
                             "chunk_id": f"{doc['doc_id']}#{slug}{suffix}",
+                            "chunk_index": chunk_index,
                             "doc_id": doc["doc_id"],
                             "corpus_source": doc["corpus_source"],
                             "chunk_type": "section" if kind != "preamble" else "preamble",
@@ -259,6 +261,7 @@ def main() -> int:
                             "token_count": count_tokens(piece),
                             "content_hash": doc["content_hash"],
                         }
+                        chunk_index += 1
 
     corpus = path_for("corpus")
     n_parents = write_jsonl(corpus / "parents.jsonl", parents())

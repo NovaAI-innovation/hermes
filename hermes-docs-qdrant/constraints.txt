@@ -6,7 +6,3 @@
 # below what the plugin.yaml range already states.
 
 qdrant-client>=1.10.0,<2.0
-
-# Hermes core pins this on Python >= 3.14. Declaring it here keeps a build-env
-# install from dragging in a version the host will reject.
-snowballstemmer>=3.1.1

@@ -18,7 +18,10 @@ from urllib.parse import urlparse
 
 import yaml
 
-import paths
+if __package__:
+    from . import paths
+else:
+    import paths
 
 # Version strings used as path segments by versioned documentation sites,
 # e.g. 2024-11-05, 2026-07-28, v1.2, 5.0.
@@ -156,7 +159,7 @@ def load_sources(path: Path | None = None, root_override: Path | None = None) ->
     root_decl = raw.get("root") or "sources"
     root = Path(root_decl)
     if not root.is_absolute():
-        base = root_override or paths.sources_root().parent
+        base = root_override or path.resolve().parent
         root = (base / root).resolve()
 
     base_dir = defaults.get("doc_types") or {}
@@ -180,6 +183,11 @@ def load_sources(path: Path | None = None, root_override: Path | None = None) ->
         llms = str(row.get("llms_txt") or "").strip()
         if not llms:
             raise ValueError(f"source '{name}' is missing llms_txt")
+        if not llms.startswith(("http://", "https://")):
+            local = Path(llms).expanduser()
+            relative_to_registry = path.resolve().parent / local
+            legacy = root / local
+            llms = str(legacy if not relative_to_registry.exists() and legacy.is_file() else relative_to_registry)
 
         doc_types = {**base_dir, **(row.get("doc_types") or {})}
         sources.append(
@@ -208,7 +216,3 @@ def get_source(name: str) -> Source:
 
 def iter_sources() -> Iterator[Source]:
     yield from load_sources()
-
-
-def sources_root(path: Path | None = None) -> Path:
-    return (path or SOURCES_YAML).parent

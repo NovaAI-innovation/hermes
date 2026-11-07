@@ -32,7 +32,7 @@ def main() -> int:
 
     def documents():
         for source in iter_sources():
-            if not source.clean_dir.exists():
+            if not source.docs_dir.exists() or not source.clean_dir.exists():
                 continue
             llms = load_llms_index(source.llms_path, source)
 
@@ -50,7 +50,7 @@ def main() -> int:
                     "source_title": source.title,
                     "title": meta.get("title") or entry.get("title") or rel_id,
                     "source_url": source_url,
-                "section": entry.get("section") or source.section_for(rel_id),
+                    "section": entry.get("section") or source.section_for(rel_id),
                 "doc_summary": entry.get("summary", ""),
                     "breadcrumb": breadcrumb_for(rel_id),
                     "doc_type": source.doc_type(rel_id),

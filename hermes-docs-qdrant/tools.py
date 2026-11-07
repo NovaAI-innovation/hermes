@@ -4,28 +4,35 @@ from __future__ import annotations
 
 import json
 import logging
+from itertools import groupby
+from threading import RLock
 
 from . import store as store_mod
 
 logger = logging.getLogger(__name__)
 
 _STORE: store_mod.DocsStore | None = None
+_STORE_LOCK = RLock()
 
 
 def configure(config: dict | None) -> None:
     """Called once from register() with the plugin's config namespace."""
     global _STORE
     settings = store_mod.Settings.resolve(config)
-    _STORE = store_mod.DocsStore(settings)
+    with _STORE_LOCK:
+        if _STORE is not None:
+            if _STORE.settings == settings:
+                return
+            _STORE.close()
+        _STORE = store_mod.DocsStore(settings)
     logger.info("hermes-docs-qdrant store: %s", settings.url or settings.path)
 
 
-def _store_or_error() -> store_mod.DocsStore | None:
-    if _STORE is None:
-        configure({})
-    if _STORE is None:  # pragma: no cover - configure always sets it
-        return None
-    return _STORE
+def _store_or_error() -> store_mod.DocsStore:
+    with _STORE_LOCK:
+        if _STORE is None:
+            configure({})
+        return _STORE
 
 
 def _error(message: str, **extra) -> str:
@@ -40,9 +47,22 @@ def _int_arg(args: dict, key: str, default: int, maximum: int) -> int:
     value = (args or {}).get(key)
     try:
         parsed = int(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return default
     return max(1, min(parsed, maximum))
+
+
+def _text_arg(args: dict | None, key: str) -> str:
+    value = (args or {}).get(key)
+    if value is None:
+        return ""
+    if not isinstance(value, str):
+        raise ValueError(f"{key} must be a string")
+    return value.strip()
+
+
+def _search_filters(args: dict | None) -> dict[str, str]:
+    return {key: value for key in ("source", "doc_type", "section") if (value := _text_arg(args, key))}
 
 
 # ------------------------------------------------------------------ retrieval
@@ -50,31 +70,18 @@ def _int_arg(args: dict, key: str, default: int, maximum: int) -> int:
 
 def docs_search(args: dict, **kwargs) -> str:
     try:
-        query = ((args or {}).get("query") or "").strip()
+        query = _text_arg(args, "query")
         if not query:
             return _error("query is required")
 
         store = _store_or_error()
         limit = _int_arg(args, "limit", store.settings.top_k, 20)
-        results = store.search(
-            query,
-            limit=limit,
-            doc_type=(args or {}).get("doc_type") or None,
-            section=(args or {}).get("section") or None,
-            source=(args or {}).get("source") or None,
-        )
-        used = {
-            k: v
-            for k, v in {
-                "source": (args or {}).get("source"),
-                "doc_type": (args or {}).get("doc_type"),
-                "section": (args or {}).get("section"),
-            }.items()
-            if v
-        }
-        payload = {"query": query, "count": len(results), "results": results}
-        if used:
-            payload["filters"] = used
+        filters = _search_filters(args)
+        details = {}
+        results = store.search(query, limit=limit, details=details, **filters)
+        payload = {"query": query, "count": len(results), "results": results, **details}
+        if filters:
+            payload["filters"] = filters
         if not results:
             payload["hint"] = "no matches; try docs_outline to see sources and doc types"
         return _ok(**payload)
@@ -85,29 +92,32 @@ def docs_search(args: dict, **kwargs) -> str:
 
 def docs_search_many(args: dict, **kwargs) -> str:
     try:
-        raw = (args or {}).get("queries") or []
+        raw = (args or {}).get("queries")
         if isinstance(raw, str):
             raw = [raw]
-        queries = [q.strip() for q in raw if isinstance(q, str) and q.strip()]
-        if not queries:
-            return _error("queries must contain at least one non-empty string")
-        if len(queries) > 10:
+        if not isinstance(raw, list) or not raw or any(not isinstance(q, str) or not q.strip() for q in raw):
+            return _error("queries must be an array of non-empty strings")
+        if len(raw) > 10:
             return _error("at most 10 queries per call")
+        queries = list(dict.fromkeys(q.strip() for q in raw))
 
         store = _store_or_error()
         limit = _int_arg(args, "limit", 4, 10)
-        grouped = store.search_many(
-            queries,
-            limit=limit,
-            doc_type=(args or {}).get("doc_type") or None,
-            source=(args or {}).get("source") or None,
-        )
-        return _ok(
+        errors = {}
+        details = {}
+        grouped = store.search_many(queries, limit=limit, errors=errors, details=details, **_search_filters(args))
+        payload = dict(
             queries=list(grouped),
             limit=limit,
             results=grouped,
             counts={q: len(v) for q, v in grouped.items()},
+            search_details=details,
         )
+        if errors:
+            payload["errors"] = errors
+            if len(errors) == len(queries):
+                return _error("All queries failed. Call docs_diagnostics.", **payload)
+        return _ok(**payload)
     except Exception as exc:  # noqa: BLE001
         logger.exception("docs_search_many failed")
         return _error(f"{exc.__class__.__name__}: {exc}")
@@ -115,13 +125,13 @@ def docs_search_many(args: dict, **kwargs) -> str:
 
 def docs_read(args: dict, **kwargs) -> str:
     try:
-        doc_id = ((args or {}).get("doc_id") or "").strip().strip("/")
+        doc_id = _text_arg(args, "doc_id").strip("/")
         if not doc_id:
             return _error("doc_id is required")
         max_chars = _int_arg(args, "max_chars", 12000, 60000)
 
         store = _store_or_error()
-        rows = store.get_doc_chunks(doc_id, limit=400)
+        rows = store.get_doc_chunks(doc_id, limit=None)
         if not rows:
             hint = "call docs_outline or docs_list to find a valid doc_id"
             if ":" not in doc_id:
@@ -159,11 +169,11 @@ def docs_read(args: dict, **kwargs) -> str:
 
 def docs_outline(args: dict, **kwargs) -> str:
     try:
-        doc_id = ((args or {}).get("doc_id") or "").strip().strip("/")
+        doc_id = _text_arg(args, "doc_id").strip("/")
         store = _store_or_error()
 
         if doc_id:
-            rows = store.get_doc_chunks(doc_id, limit=400)
+            rows = store.get_doc_chunks(doc_id, limit=None)
             if not rows:
                 return _error(f"no document with doc_id '{doc_id}'")
             return _ok(
@@ -171,7 +181,7 @@ def docs_outline(args: dict, **kwargs) -> str:
                 title=rows[0]["title"],
                 source=rows[0].get("source", ""),
                 source_url=rows[0]["source_url"],
-                headings=[r["heading"] for r in rows if r.get("heading")],
+                headings=[heading for heading, _ in groupby(r.get("heading") for r in rows) if heading],
             )
 
         stats = store.corpus_stats()
@@ -187,9 +197,9 @@ def docs_list(args: dict, **kwargs) -> str:
         store = _store_or_error()
         limit = _int_arg(args, "limit", 100, 500)
         docs = store.list_documents(
-            source=(args or {}).get("source") or None,
-            doc_type=(args or {}).get("doc_type") or None,
-            prefix=(args or {}).get("prefix") or None,
+            source=_text_arg(args, "source") or None,
+            doc_type=_text_arg(args, "doc_type") or None,
+            prefix=_text_arg(args, "prefix") or None,
             limit=limit,
         )
         return _ok(count=len(docs), documents=docs, truncated=len(docs) >= limit)
@@ -202,7 +212,7 @@ def docs_stats(args: dict, **kwargs) -> str:
     try:
         store = _store_or_error()
         stats = store.corpus_stats()
-        manifest = store.collection_manifest()
+        manifest = store.collection_manifest(stats["active_collection"])
         if manifest:
             stats["manifest"] = manifest
         return _ok(**stats)
@@ -221,7 +231,7 @@ def docs_diagnostics(args: dict | None = None, **kwargs) -> str:
     precisely the ones where every other tool is hidden.
     """
     try:
-        from . import compat, environment
+        from . import environment
 
         env = environment()
         store = _store_or_error()
@@ -274,20 +284,27 @@ def docs_rebuild(args: dict, **kwargs) -> str:
     try:
         from . import rebuild as rebuild_mod
 
-        sources = (args or {}).get("sources") or None
-        if isinstance(sources, str):
-            sources = [sources]
-        clean_sources = [s for s in (sources or []) if isinstance(s, str)] or None
+        options = {} if args is None else args
+        if not isinstance(options, dict):
+            return _error("rebuild options must be an object")
+        for name in ("scrape", "reindex", "refresh"):
+            if name in options and not isinstance(options[name], bool):
+                return _error(f"{name} must be a boolean")
+        sources = options.get("sources")
+        if "sources" in options:
+            if isinstance(sources, str):
+                sources = [sources]
+            if not isinstance(sources, list) or not sources or any(not isinstance(s, str) or not s.strip() for s in sources):
+                return _error("sources must be an array of non-empty source names")
+            sources = [s.strip() for s in sources]
         result = rebuild_mod.rebuild(
-            scrape=bool((args or {}).get("scrape", False)),
-            sources=clean_sources,
-            reindex=bool((args or {}).get("reindex", True)),
-            refresh=bool((args or {}).get("refresh", False)),
+            scrape=options.get("scrape", True),
+            sources=sources,
+            reindex=options.get("reindex", True),
+            refresh=options.get("refresh", False),
+            store=_store_or_error(),
         )
-        # A successful index rebuild invalidates any cached store handle.
-        if result.get("ok"):
-            configure(None)
-        return _ok(**result)
+        return json.dumps(result, ensure_ascii=False)
     except Exception as exc:  # noqa: BLE001
         logger.exception("docs_rebuild failed")
         return _error(f"{exc.__class__.__name__}: {exc}")
