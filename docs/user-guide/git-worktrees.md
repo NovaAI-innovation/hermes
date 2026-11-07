@@ -1,0 +1,513 @@
+---
+title: "Git Worktrees"
+source: https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees
+scraped_at: 2026-11-07T17:19:22.950936+00:00
+success: True
+status_code: 200
+---
+
+[Skip to main content](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#__docusaurus_skipToContent_fallback)
+[![Hermes Agent](https://hermes-agent.nousresearch.com/docs/img/logo.png) **Hermes Agent**](https://hermes-agent.nousresearch.com/docs/)[Docs](https://hermes-agent.nousresearch.com/docs/user-stories)[Skills](https://hermes-agent.nousresearch.com/docs/skills)[Plugins](https://hermes-agent.nousresearch.com/docs/plugins)[Download](https://hermes-agent.nousresearch.com/)
+[](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+  * [English](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+  * [简体中文](https://hermes-agent.nousresearch.com/docs/zh-Hans/user-guide/git-worktrees)
+
+
+[Home](https://hermes-agent.nousresearch.com)[GitHub](https://github.com/NousResearch/hermes-agent)[Discord](https://discord.gg/NousResearch)
+Search`Ctrl``K`
+  * [User Stories & Use Cases](https://hermes-agent.nousresearch.com/docs/user-stories)
+  * [Browse Skills](https://hermes-agent.nousresearch.com/docs/skills)
+  * [Browse Plugins](https://hermes-agent.nousresearch.com/docs/plugins)
+  * [Getting Started](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+  * [Using Hermes](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+    * [CLI Interface](https://hermes-agent.nousresearch.com/docs/user-guide/cli)
+    * [TUI](https://hermes-agent.nousresearch.com/docs/user-guide/tui)
+    * [Hermes Desktop](https://hermes-agent.nousresearch.com/docs/user-guide/desktop)
+    * [Bot Mode](https://hermes-agent.nousresearch.com/docs/user-guide/bot-mode)
+    * [Windows (Native)](https://hermes-agent.nousresearch.com/docs/user-guide/windows-native)
+    * [Windows (WSL2)](https://hermes-agent.nousresearch.com/docs/user-guide/windows-wsl-quickstart)
+    * [Switching to a Source Install](https://hermes-agent.nousresearch.com/docs/user-guide/switching-to-source)
+    * [Hermes Agent Configuration](https://hermes-agent.nousresearch.com/docs/user-guide/configuration)
+    * [Which File Does What?](https://hermes-agent.nousresearch.com/docs/user-guide/which-file-does-what)
+    * [Managed Scope](https://hermes-agent.nousresearch.com/docs/user-guide/managed-scope)
+    * [Remote Config](https://hermes-agent.nousresearch.com/docs/user-guide/remote-config)
+    * [Configuring Models](https://hermes-agent.nousresearch.com/docs/user-guide/configuring-models)
+    * [Secrets](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+    * [Egress proxy](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+    * [Sessions](https://hermes-agent.nousresearch.com/docs/user-guide/sessions)
+    * [Session Storage Recovery](https://hermes-agent.nousresearch.com/docs/user-guide/session-storage-recovery)
+    * [Profiles: Running Multiple Agents](https://hermes-agent.nousresearch.com/docs/user-guide/profiles)
+    * [Profile Distributions: Share a Whole Agent](https://hermes-agent.nousresearch.com/docs/user-guide/profile-distributions)
+    * [Running Many Gateways at Once](https://hermes-agent.nousresearch.com/docs/user-guide/multi-profile-gateways)
+    * [Connecting Desktop to Many Hermes Instances](https://hermes-agent.nousresearch.com/docs/user-guide/multi-connection-desktop)
+    * [Git Worktrees](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+    * [Hermes Docker Setup](https://hermes-agent.nousresearch.com/docs/user-guide/docker)
+    * [Security](https://hermes-agent.nousresearch.com/docs/user-guide/security)
+    * [Checkpoints & Rollback](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback)
+  * [Features](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+  * [Messaging Platforms](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+  * [Integrations](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+  * [Guides & Tutorials](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+  * [Developer Guide](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+  * [Reference](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+
+
+  * [](https://hermes-agent.nousresearch.com/docs/)
+  * Using Hermes
+  * Git Worktrees
+
+
+On this page
+# Git Worktrees
+Hermes Agent is often used on large, long‑lived repositories. When you want to:
+  * Run **multiple agents in parallel** on the same project, or
+  * Keep experimental refactors isolated from your main branch,
+
+
+Git **worktrees** are the safest way to give each agent its own checkout without duplicating the entire repository.
+This page shows how to combine worktrees with Hermes so each session has a clean, isolated working directory.
+## Why Use Worktrees with Hermes?[​](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#why-use-worktrees-with-hermes "Direct link to Why Use Worktrees with Hermes?")
+Hermes treats the **current working directory** as the project root:
+  * CLI: the directory where you run `hermes` or `hermes chat`
+  * Messaging gateways: the directory set by `terminal.cwd` in `~/.hermes/config.yaml`
+
+
+If you run multiple agents in the **same checkout** , their changes can interfere with each other:
+  * One agent may delete or rewrite files the other is using.
+  * It becomes harder to understand which changes belong to which experiment.
+
+
+With worktrees, each agent gets:
+  * Its **own branch and working directory**
+  * Its **own Checkpoint Manager history** for `/rollback`
+
+
+See also: [Checkpoints and /rollback](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback).
+## Quick Start: Creating a Worktree[​](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#quick-start-creating-a-worktree "Direct link to Quick Start: Creating a Worktree")
+### From inside a session: `/worktree new`[​](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#from-inside-a-session-worktree-new "Direct link to from-inside-a-session-worktree-new")
+The fastest path (inspired by Copilot CLI's `/worktree new`): from an interactive CLI session, run
+
+```
+
+
+/worktree new my-experiment  
+
+
+
+```
+
+Hermes creates `.worktrees/my-experiment/` inside the repo (branch `hermes/my-experiment`, based on the freshly-fetched remote tip unless `worktree_sync: false`), and retargets the session's terminal and file tools into it — no restart needed. Omit the name to get a random `hermes-<id>` tree. `/worktree` alone shows the active tree; `/worktree list` lists all of them. On exit a clean, pushed tree is removed; a tree with uncommitted changes or unpushed commits triggers the same keep / archive / remove question as `hermes -w`.
+### Manually with git[​](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#manually-with-git "Direct link to Manually with git")
+From your main repository (containing `.git/`), create a new worktree for a feature branch:
+
+```
+
+
+# From the main repo root  
+
+
+
+
+
+cd /path/to/your/repo  
+
+
+
+
+
+  
+
+
+
+
+
+# Create a new branch and worktree in ../repo-feature  
+
+
+
+
+
+git worktree add ../repo-feature feature/hermes-experiment  
+
+
+
+```
+
+This creates:
+  * A new directory: `../repo-feature`
+  * A new branch: `feature/hermes-experiment` checked out in that directory
+
+
+Now you can `cd` into the new worktree and run Hermes there:
+
+```
+
+
+cd ../repo-feature  
+
+
+
+
+
+  
+
+
+
+
+
+# Start Hermes in the worktree  
+
+
+
+
+
+hermes  
+
+
+
+```
+
+Hermes will:
+  * See `../repo-feature` as the project root.
+  * Use that directory for context files, code edits, and tools.
+  * Use a **separate checkpoint history** for `/rollback` scoped to this worktree.
+
+
+## Running Multiple Agents in Parallel[​](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#running-multiple-agents-in-parallel "Direct link to Running Multiple Agents in Parallel")
+You can create multiple worktrees, each with its own branch:
+
+```
+
+
+cd /path/to/your/repo  
+
+
+
+
+
+  
+
+
+
+
+
+git worktree add ../repo-experiment-a feature/hermes-a  
+
+
+
+
+
+git worktree add ../repo-experiment-b feature/hermes-b  
+
+
+
+```
+
+In separate terminals:
+
+```
+
+
+# Terminal 1  
+
+
+
+
+
+cd ../repo-experiment-a  
+
+
+
+
+
+hermes  
+
+
+
+
+
+  
+
+
+
+
+
+# Terminal 2  
+
+
+
+
+
+cd ../repo-experiment-b  
+
+
+
+
+
+hermes  
+
+
+
+```
+
+Each Hermes process:
+  * Works on its own branch (`feature/hermes-a` vs `feature/hermes-b`).
+  * Writes checkpoints under a different shadow repo hash (derived from the worktree path).
+  * Can use `/rollback` independently without affecting the other.
+
+
+This is especially useful when:
+  * Running batch refactors.
+  * Trying different approaches to the same task.
+  * Pairing CLI + gateway sessions against the same upstream repo.
+
+
+## Cleaning Up Worktrees Safely[​](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#cleaning-up-worktrees-safely "Direct link to Cleaning Up Worktrees Safely")
+When you are done with an experiment:
+  1. Decide whether to keep or discard the work.
+  2. If you want to keep it:
+     * Merge the branch into your main branch as usual.
+  3. Remove the worktree:
+
+
+
+```
+
+
+cd /path/to/your/repo  
+
+
+
+
+
+  
+
+
+
+
+
+# Remove the worktree directory and its reference  
+
+
+
+
+
+git worktree remove ../repo-feature  
+
+
+
+```
+
+Notes:
+  * `git worktree remove` will refuse to remove a worktree with uncommitted changes unless you force it.
+  * Removing a worktree does **not** automatically delete the branch; you can delete or keep the branch using normal `git branch` commands.
+  * Hermes checkpoint data under `~/.hermes/checkpoints/` is not automatically pruned when you remove a worktree, but it is usually very small.
+
+
+## Best Practices[​](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#best-practices "Direct link to Best Practices")
+  * **One worktree per Hermes experiment**
+    * Create a dedicated branch/worktree for each substantial change.
+    * This keeps diffs focused and PRs small and reviewable.
+  * **Name branches after the experiment**
+    * e.g. `feature/hermes-checkpoints-docs`, `feature/hermes-refactor-tests`.
+  * **Commit frequently**
+    * Use git commits for high‑level milestones.
+    * Use [checkpoints and /rollback](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback) as a safety net for tool‑driven edits in between.
+  * **Avoid running Hermes from the bare repo root when using worktrees**
+    * Prefer the worktree directories instead, so each agent has a clear scope.
+
+
+## Using `hermes -w` (Automatic Worktree Mode)[​](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#using-hermes--w-automatic-worktree-mode "Direct link to using-hermes--w-automatic-worktree-mode")
+Hermes has a built‑in `-w` flag that **automatically creates a disposable git worktree** with its own branch. You don't need to set up worktrees manually — just `cd` into your repo and run:
+
+```
+
+
+cd /path/to/your/repo  
+
+
+
+
+
+hermes -w  
+
+
+
+```
+
+Hermes will:
+  * Create a temporary worktree under `.worktrees/` inside your repo.
+  * Check out an isolated branch (e.g. `hermes/hermes-<hash>`).
+  * Run the full CLI session inside that worktree.
+
+
+Hermes checks the worktree out without running the repository's own git configuration: its hooks, `core.fsmonitor` and clean/smudge filters are off for that checkout, as they are for the worktrees Hermes creates for kanban tasks and subagents. A repository that stores files through Git LFS gets pointer files there; run `git lfs pull` inside the worktree if the session needs their contents.
+This is the easiest way to get worktree isolation. You can also combine it with a single query:
+
+```
+
+
+hermes -w -z "Fix issue #123"  
+
+
+
+```
+
+For parallel agents, open multiple terminals and run `hermes -w` in each — every invocation gets its own worktree and branch automatically.
+### Leaving a session with unfinished work[​](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#leaving-a-session-with-unfinished-work "Direct link to Leaving a session with unfinished work")
+When an interactive `hermes -w` session (classic CLI or `--tui`) exits and its worktree has uncommitted changes or unpushed commits, Hermes asks:
+  * **Keep the worktree** (default, also what Enter/Esc picks) — nothing changes.
+  * **Archive and remove it** — the full working state is archived (see below) and the tree is removed before the session finishes exiting, so a large tree is never cut short; Hermes prints the `hermes worktree restore` command. If the archive fails, the tree is kept.
+  * **Remove it and discard the changes** — only when you pick it explicitly.
+
+
+One-shot runs (`-q`, `-z`), cron jobs, gateway sessions and any exit without a terminal never ask: the tree is kept and the stale-worktree sweep handles it later. A clean tree whose commits are pushed is removed without asking.
+## Stale worktree sweep and restore[​](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#stale-worktree-sweep-and-restore "Direct link to Stale worktree sweep and restore")
+Every repository Hermes creates a worktree in (`hermes -w`, `/worktree new`, subagent worktree isolation, the desktop app's git pane) is recorded in `<HERMES_HOME>/worktree_repos.json` for the active profile. At `hermes -w` startup and every 6 hours from the cron ticker, Hermes sweeps each of those repositories' `.worktrees/`:  
+| Tree  | Decision  |  
+| --- | --- |  
+| Idle past its tier (`hermes-*`/`subagent-*` 24 h, named trees 72 h), clean and merged or pushed  | removed  |  
+| Idle past its tier with uncommitted changes or unpushed commits  | **archived, then removed**  |  
+| A live hermes lock owner, or any live process whose cwd (Linux: or an open file) is inside  | never touched  |  
+| File, `HEAD` or reflog activity younger than its tier (a deleted file counts through its folder)  | never touched  |  
+| Kanban task trees (`t_<hex>`)  | never touched (the Kanban GC owns them)  |  
+| Any submodule: a gitlink in the index, or a submodule repository kept under the tree's `modules/` (even after `git submodule deinit`)  | kept (`keep-submodule-work`: an archive records only the submodule pointer). A clean merged tree is removed only if its submodules were never initialized  |  
+| An embedded repository anywhere inside, gitignored or not (e.g. `build/tool/.git`)  | kept (`keep-unarchivable`)  |  
+| A commit held only by a per-worktree ref (`refs/worktree/*`, `refs/bisect/*`, `refs/rewritten/*`)  | kept (`keep-worktree-refs`: those refs are deleted with the tree)  |  
+| An untracked file larger than `worktrees.archive_max_file_mb`  | kept (`keep-large-untracked`)  |  
+**Ignored files.** Ignored files (`.env` copies, caches, build and test output) are not archived and are deleted with the tree. A nested git repository inside an ignored folder is the one exception: it keeps the tree.
+The same checks run on clean merged trees, and every dirty check counts files that `status.showUntrackedFiles=no` would hide and skip-worktree / assume-unchanged files whose bytes differ from the index.
+An archive is a commit stored at `refs/hermes/archive/<tree>` holding the tree's `HEAD`, staged changes, unstaged changes and untracked files (files your `.gitignore` excludes, such as `node_modules/` or `.venv/`, are not captured). It is built with a temporary index, so the tree itself is never modified; if the archive cannot be built, the tree is kept. If the tree is entered or its staged changes move (`git add`, `git apply --cached`) while the archive is being built, the archive is saved and the tree is kept too. File bytes are stored and restored exactly: no `.gitattributes`, `info/attributes`, `core.attributesFile` line-ending or filter rule is applied. Untracked files larger than `worktrees.archive_max_file_mb` are left out and listed in the archive, and the tree is then kept: exit **Archive** and the subagent result say so. A branch that exists on a remote (an open PR) is kept; otherwise the archive holds its commits and the local branch is deleted.
+
+```
+
+
+hermes worktree list                 # trees plus archives (name, age, branch, reason)  
+
+
+
+
+
+hermes worktree prune --dry-run      # every archive/remove/skip decision and why; changes nothing  
+
+
+
+
+
+hermes worktree restore lane-x       # recreate .worktrees/lane-x with its branch, staged and untracked files  
+
+
+
+
+
+hermes worktree restore lane-x --path ../lane-x-review  
+
+
+
+```
+
+Restore puts the branch back when it is missing or still points at the archived `HEAD`; otherwise the tree comes back detached at that commit. Archives older than `worktrees.archive_retention_days` are deleted by the sweep.
+
+```
+
+
+worktrees:  
+
+
+
+
+
+  archive_dirty: true          # false = never remove dirty/unpushed trees (the old behaviour)  
+
+
+
+
+
+  archive_max_file_mb: 50      # untracked files above this are not archived; their tree is kept  
+
+
+
+
+
+  archive_retention_days: 30   # 0 keeps archives forever  
+
+
+
+
+
+  max_total_gb: 0              # optional budget for idle trees; oldest are archived + removed first  
+
+
+
+
+
+  install_state_retention_days: 14  # dependency state of a missing checkout outside .worktrees/ and  
+
+
+
+
+
+                               # the data root, unused this long, is reclaimed; 0 keeps it forever.  
+
+
+
+
+
+                               # Read from the root profile's config: its profiles share installs/  
+
+
+
+```
+
+There is no limit on how many trees may exist: hundreds of parallel subagents each keep their tree for as long as they work in it. `max_total_gb` only ever evicts idle trees past their tier.
+Subagent worktrees (`delegation.worktree_isolation: true`) follow the same rule when the child finishes: a clean tree is removed, and a tree with commits or edits is archived and removed with its branch kept for the parent to merge.
+## Putting It All Together[​](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#putting-it-all-together "Direct link to Putting It All Together")
+  * Use **git worktrees** to give each Hermes session its own clean checkout.
+  * Use **branches** to capture the high‑level history of your experiments.
+  * Use **checkpoints +`/rollback`** to recover from mistakes inside each worktree.
+
+
+This combination gives you:
+  * Strong guarantees that different agents and experiments do not step on each other.
+  * Fast iteration cycles with easy recovery from bad edits.
+  * Clean, reviewable pull requests.
+
+
+## Developing the UI surfaces across worktrees[​](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#developing-the-ui-surfaces-across-worktrees "Direct link to Developing the UI surfaces across worktrees")
+The TypeScript surfaces (`ui-tui/`, `apps/desktop/`) each need a `node_modules`, which a fresh `pnpm install` per worktree repeats for every branch. If you hack on the TUI or desktop app from multiple worktrees, see [TUI & Desktop from Worktrees](https://hermes-agent.nousresearch.com/docs/developer-guide/worktree-ui-dev) for the `htui` / `hgui` helpers that share one install by symlink.
+[](https://github.com/NousResearch/hermes-agent/edit/main/website/docs/user-guide/git-worktrees.md)
+[Previous Connecting Desktop to Many Hermes Instances](https://hermes-agent.nousresearch.com/docs/user-guide/multi-connection-desktop)[Next Hermes Docker Setup](https://hermes-agent.nousresearch.com/docs/user-guide/docker)
+  * [Why Use Worktrees with Hermes?](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#why-use-worktrees-with-hermes)
+  * [Quick Start: Creating a Worktree](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#quick-start-creating-a-worktree)
+    * [From inside a session: `/worktree new`](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#from-inside-a-session-worktree-new)
+    * [Manually with git](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#manually-with-git)
+  * [Running Multiple Agents in Parallel](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#running-multiple-agents-in-parallel)
+  * [Cleaning Up Worktrees Safely](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#cleaning-up-worktrees-safely)
+  * [Best Practices](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#best-practices)
+  * [Using `hermes -w` (Automatic Worktree Mode)](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#using-hermes--w-automatic-worktree-mode)
+    * [Leaving a session with unfinished work](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#leaving-a-session-with-unfinished-work)
+  * [Stale worktree sweep and restore](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#stale-worktree-sweep-and-restore)
+  * [Putting It All Together](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#putting-it-all-together)
+  * [Developing the UI surfaces across worktrees](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees#developing-the-ui-surfaces-across-worktrees)
+
+
+Docs
+  * [Getting Started](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart)
+  * [User Guide](https://hermes-agent.nousresearch.com/docs/user-guide/cli)
+  * [Developer Guide](https://hermes-agent.nousresearch.com/docs/developer-guide/architecture)
+  * [Reference](https://hermes-agent.nousresearch.com/docs/reference/cli-commands)
+
+
+Community
+  * [Discord](https://discord.gg/NousResearch)
+  * [GitHub Issues](https://github.com/NousResearch/hermes-agent/issues)
+  * [Skills Hub](https://agentskills.io)
+
+
+More
+  * [Desktop Download](https://hermes-agent.nousresearch.com/)
+  * [GitHub](https://github.com/NousResearch/hermes-agent)
+  * [Nous Research](https://nousresearch.com)
+
+
+Built by [Nous Research](https://nousresearch.com) · MIT License · 2026

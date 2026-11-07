@@ -1,0 +1,206 @@
+---
+title: "Import from Other Agents"
+source: https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents
+scraped_at: 2026-11-07T17:19:22.959711+00:00
+success: True
+status_code: 200
+---
+
+[Skip to main content](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#__docusaurus_skipToContent_fallback)
+[![Hermes Agent](https://hermes-agent.nousresearch.com/docs/img/logo.png) **Hermes Agent**](https://hermes-agent.nousresearch.com/docs/)[Docs](https://hermes-agent.nousresearch.com/docs/user-stories)[Skills](https://hermes-agent.nousresearch.com/docs/skills)[Plugins](https://hermes-agent.nousresearch.com/docs/plugins)[Download](https://hermes-agent.nousresearch.com/)
+[](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents)
+  * [English](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents)
+  * [简体中文](https://hermes-agent.nousresearch.com/docs/zh-Hans/user-guide/import-from-other-agents)
+
+
+[Home](https://hermes-agent.nousresearch.com)[GitHub](https://github.com/NousResearch/hermes-agent)[Discord](https://discord.gg/NousResearch)
+Search`Ctrl``K`
+On this page
+# Import from Other Agents
+`hermes import-agent` imports your existing **OpenClaw** , **Claude Code** , **OpenAI Codex CLI** , **Cursor** , **Grok Bot** or **OpenBot** setup into Hermes with one command. You always see a per-item plan before anything is written, and `--dry-run` never touches disk.
+The command comes from the official **`agent-importers`plugin** from the [plugin catalog](https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins), maintained by Nous Research in [NousResearch/hermes-official-plugins](https://github.com/NousResearch/hermes-official-plugins/tree/main/agent-importers).
+## The easy way: `hermes setup`[​](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#the-easy-way-hermes-setup "Direct link to the-easy-way-hermes-setup")
+On a fresh install, `hermes setup` checks for `~/.openclaw` (or legacy `~/.clawdbot` / `~/.moltbot`), `~/.claude`, `~/.codex`, `~/.cursor` and the Grok Bot desktop app (or a `grok-bot-export*` file in `~/Downloads`) and OpenBot before anything else. When it finds one it asks **"Import your setup from Claude Code?"** (naming what it found); with several found you then pick which from a checklist, all checked. Say yes and setup installs the `agent-importers` plugin from the catalog, unless you already have it, and runs the import below for each pick, preview and confirmation included. For OpenClaw it passes `--migrate-secrets`, as Hermes' old built-in OpenClaw step did, so your API keys and bot tokens come over and the provider and messaging sections that follow are already filled in. If you then pick Quick Setup and the import brought a model along with its key, setup asks whether to keep that model (the default) or switch to Nous Portal. Say no, or have none of these folders, and nothing is installed. Already set up? Run `hermes migrate` for the same offer, `hermes migrate <agent>` (`openclaw`, `claude-code`, `codex`, `cursor`, `grok-bot`, `openbot`) to import from one agent, installing the plugin when it is missing, or use the commands below.
+## By hand[​](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#by-hand "Direct link to By hand")
+Install the plugin once per profile:
+
+```
+
+
+hermes plugins install agent-importers  
+
+
+
+```
+
+
+```
+
+
+hermes import-agent                    # auto-detect ~/.openclaw, ~/.claude, ~/.codex or ~/.cursor  
+
+
+
+
+
+hermes import-agent openclaw           # import from ~/.openclaw (see the OpenClaw guide)  
+
+
+
+
+
+hermes import-agent claude-code        # import from ~/.claude  
+
+
+
+
+
+hermes import-agent codex              # import from ~/.codex  
+
+
+
+
+
+hermes import-agent cursor             # import from ~/.cursor  
+
+
+
+
+
+hermes import-agent claude-code --dry-run          # preview only  
+
+
+
+
+
+hermes import-agent codex --source /path/to/.codex # custom location  
+
+
+
+
+
+hermes import-agent claude-code --overwrite --yes  # replace conflicts, skip prompts  
+
+
+
+```
+
+## What gets imported[​](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#what-gets-imported "Direct link to What gets imported")
+### OpenClaw (`~/.openclaw`)[​](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#openclaw-openclaw "Direct link to openclaw-openclaw")
+OpenClaw has its own guide, **[Migrate from OpenClaw](https://hermes-agent.nousresearch.com/docs/guides/migrate-from-openclaw)** , with the full mapping (persona, memory, skills, model providers, messaging platforms, agent behaviour, MCP servers and more), the `--preset`, `--migrate-secrets`, `--workspace-target` and `--skill-conflict` flags, the pre-migration backup and `hermes claw cleanup`. The older spelling `hermes claw migrate` still works and runs the same import.
+### Claude Code (`~/.claude`)[​](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#claude-code-claude "Direct link to claude-code-claude")  
+| Claude Code  | Hermes  |  
+| --- | --- |  
+|  `CLAUDE.md` (global instructions)  | Memory entries in `~/.hermes/memories/MEMORY.md`  |  
+|  `settings.json` → `permissions.allow` (`Bash(...)` rules)  |  `command_allowlist` in `config.yaml`  |  
+|  `settings.json` → `permissions.deny` (`Bash(...)` rules)  |  `approvals.deny` in `config.yaml`  |  
+|  `mcpServers` (from `~/.claude.json` and `settings.json`)  |  `mcp_servers` in `config.yaml`  |  
+|  `skills/<name>/` (dirs with `SKILL.md`)  | `~/.hermes/skills/claude-code-imports/<name>/`  |  
+|  `commands/*.md` (slash commands)  | Skipped with a note — convert them into skills  |  
+Claude's `Bash(npm run test:*)` prefix rules become `npm run test*` globs. Non-`Bash` permission rules (`Read(...)`, `WebFetch`, ...) gate Claude-specific tools and are reported as unmapped rather than imported.
+### Codex CLI (`~/.codex`)[​](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#codex-cli-codex "Direct link to codex-cli-codex")  
+| Codex CLI  | Hermes  |  
+| --- | --- |  
+|  `AGENTS.md` (global instructions)  | Memory entries in `~/.hermes/memories/MEMORY.md`  |  
+|  `config.toml` → `[mcp_servers.*]`  |  `mcp_servers` in `config.yaml`  |  
+| `memories/*.md`  | Memory entries in `~/.hermes/memories/MEMORY.md`  |  
+|  `skills/<name>/` (dirs with `SKILL.md`)  | `~/.hermes/skills/codex-imports/<name>/`  |  
+### Cursor (`~/.cursor`)[​](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#cursor-cursor "Direct link to cursor-cursor")  
+| Cursor  | Hermes  |  
+| --- | --- |  
+|  `AGENTS.md` (global instructions)  | Memory entries in `~/.hermes/memories/MEMORY.md`  |  
+|  `rules/*.md`, `rules/*.mdc` (User Rules)  | Memory entries in `~/.hermes/memories/MEMORY.md`  |  
+|  `mcp.json` → `mcpServers`  |  `mcp_servers` in `config.yaml`  |  
+|  `skills/**/<name>/` (dirs with `SKILL.md`, category folders allowed)  | `~/.hermes/skills/cursor-imports/<name>/`  |  
+`.mdc` frontmatter (`description`, `globs`, `alwaysApply`) is routing metadata for Cursor's rule engine and is stripped; only the rule body is imported. A skill is the folder holding `SKILL.md`, so `skills/shipping/land-it/` imports as `cursor-imports/land-it/`; two skills with the same name in different folders are reported as a conflict.
+### Grok Bot[​](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#grok-bot "Direct link to Grok Bot")
+Grok Bot keeps your Bots, routines and skills in its cloud account and has no export button, so each Bot exports itself. Run `hermes migrate grok-bot` (or `hermes import-agent grok-bot`): with no export yet it prints a message to paste into a Bot's chat. The Bot writes `grok-bot-export.json` (or replies with one JSON block) without changing anything; download it and run `hermes import-agent grok-bot --source <file>`. Files saved as `~/Downloads/grok-bot-export*` are found without `--source`. Repeat per Bot, into the profile that should own its work (`hermes -p <profile> ...`).  
+| Grok Bot  | Hermes  |  
+| --- | --- |  
+| Routine on a schedule  |  [Cron job](https://hermes-agent.nousresearch.com/docs/user-guide/features/cron) `<Bot>: <routine>` with the same schedule, time zone and skills, created **paused**  |  
+| Routine on an event (Slack, GitHub, email, webhook, ...)  | Its instruction and trigger saved to `grok-bot-import/<bot>-event-routines.md` to rebuild  |  
+| Skills  | `skills/grok-bot-imports/<name>/`  |  
+| What the Bot remembers / facts about you  |  `memories/MEMORY.md` / `memories/USER.md`  |  
+| The Bot's role  |  `SOUL.md` while it still holds Hermes' default, else memory entries  |  
+| Apps with a remote MCP URL  |  `mcp_servers` in `config.yaml`  |  
+Routines arrive paused so they don't run twice while the Grok copy is still on: turn it off in Grok Bot, then `hermes cron resume <id>` (the import prints each id), or pass `--activate-routines`. Point a job's output somewhere with `hermes cron edit <id> --deliver telegram`. An export carrying credential-looking keys is refused, and token-shaped text is redacted.
+### OpenBot[​](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#openbot "Direct link to OpenBot")
+`hermes migrate openbot` (or `hermes import-agent openbot`) reads the OpenBot desktop app's local database (`openbot.db` in `~/Library/Application Support/OpenBot`, `~/.config/OpenBot` or `%APPDATA%\OpenBot`; read-only, so OpenBot can stay open) and each agent's workspace under `~/OpenBot/Agents`. Routines become paused cron jobs with the same schedule and time zone, the agent's description becomes `SOUL.md` (or memory entries), its memories go to `memories/MEMORY.md`, its workspace skills to `skills/openbot-imports/`, and MCP servers to `config.yaml` with secret-looking env vars stripped. `--bot <name>` picks agents; `hermes -p <profile> ...` gives an agent its own profile. Chats and provider accounts stay in OpenBot.
+## What is never imported[​](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#what-is-never-imported "Direct link to What is never imported")
+**API keys and credentials.** (OpenClaw is the one exception: its allowlisted API keys and bot tokens come over only when you pass `--migrate-secrets`.) Credential files (`~/.claude/.credentials.json`, `~/.codex/auth.json`, `~/.cursor/cli-config.json`) are never read, and MCP server environment variables or headers with secret-looking names (`*_TOKEN`, `*_API_KEY`, `Authorization`, ...) are stripped and listed in the report so you can re-add them deliberately. Run `hermes setup` to configure providers, or add secrets to `~/.hermes/.env`.
+## Behavior notes[​](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#behavior-notes "Direct link to Behavior notes")
+  * **Preview first, always.** The command prints the full plan before applying; in non-interactive sessions it stops at the preview unless you pass `--yes`.
+  * **Merges, not replaces.** Memory entries are deduplicated against your existing `MEMORY.md`; allowlist/denylist patterns merge with what's already in `config.yaml`.
+  * **Conflicts are skipped by default.** An MCP server or skill that already exists in Hermes is reported as a conflict; pass `--overwrite` to replace it.
+  * **Malformed files don't abort the run.** A broken `settings.json` or `config.toml` becomes a per-item error in the report while everything else still imports.
+
+
+## Keeping imports in sync[​](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#keeping-imports-in-sync "Direct link to Keeping imports in sync")
+Every successful Claude Code, Codex CLI or Cursor import registers its source (and the digest of everything it read) in `~/.hermes/import-sync.json`. When the other agent's setup changes later — new skills, edited `CLAUDE.md`/`AGENTS.md`, added MCP servers — pull the changes in with:
+
+```
+
+
+hermes import-agent --sync            # re-import every changed source  
+
+
+
+
+
+hermes import-agent --sync --dry-run  # preview what a sync would do  
+
+
+
+```
+
+Sync is prompt-free and cheap: sources whose files are unchanged are skipped by digest comparison, so it is safe to run on a schedule (e.g. a daily [cron job](https://hermes-agent.nousresearch.com/docs/user-guide/features/cron)). Rules:
+  * **Memory and config merges stay deduplicating** — a sync never duplicates entries or patterns you already have.
+  * **Skills previously imported by`import-agent` are refreshed in place** when the source copy changes.
+  * **Skills you created or modified under the import category yourself are never clobbered** — they keep normal conflict semantics (use `--overwrite` on a manual run to force).
+  * **Credential files never trigger a sync** — token refreshes in `~/.claude/.credentials.json` or `~/.codex/auth.json` are ignored by the digest, and secrets are still stripped from anything imported.
+
+
+This mirrors ChatGPT Work's _Settings > Import_ automatic updates, adapted to an explicit, inspectable command instead of a background service.
+The manifest is per profile. A profile created with `hermes profile create <name> --clone --sync-imports` carries it over, so `hermes -p <name> import-agent --sync` keeps pulling from the same external trees (see [Profiles](https://hermes-agent.nousresearch.com/docs/user-guide/profiles#keep-a-clones-imported-agent-setups-synced---sync-imports)).
+## Upgrading from a version with `import-agent` built in[​](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#upgrading-from-a-version-with-import-agent-built-in "Direct link to upgrading-from-a-version-with-import-agent-built-in")
+`hermes import-agent` and `hermes claw` used to ship inside Hermes core. The commands, their flags and the `import-sync.json` manifest are unchanged in the plugin:
+  * **Profiles with a registered sync source** (an `import-sync.json`, which scheduled `--sync` runs read) get the plugin installed automatically by `hermes update`, or on the first start after updating (this honours `security.allow_lazy_installs`). If you later remove it (`hermes plugins remove agent-importers`), it stays removed.
+  * **Everyone else** installs it when they next need it: a fresh `hermes setup` that finds one of these agents offers it, and running `hermes import-agent` or `hermes claw` without the plugin prints the install command.
+
+
+[](https://github.com/NousResearch/hermes-agent/edit/main/website/docs/user-guide/import-from-other-agents.md)
+  * [The easy way: `hermes setup`](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#the-easy-way-hermes-setup)
+  * [By hand](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#by-hand)
+  * [What gets imported](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#what-gets-imported)
+    * [OpenClaw (`~/.openclaw`)](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#openclaw-openclaw)
+    * [Claude Code (`~/.claude`)](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#claude-code-claude)
+    * [Codex CLI (`~/.codex`)](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#codex-cli-codex)
+    * [Cursor (`~/.cursor`)](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#cursor-cursor)
+    * [Grok Bot](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#grok-bot)
+    * [OpenBot](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#openbot)
+  * [What is never imported](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#what-is-never-imported)
+  * [Behavior notes](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#behavior-notes)
+  * [Keeping imports in sync](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#keeping-imports-in-sync)
+  * [Upgrading from a version with `import-agent` built in](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents#upgrading-from-a-version-with-import-agent-built-in)
+
+
+Docs
+  * [Getting Started](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart)
+  * [User Guide](https://hermes-agent.nousresearch.com/docs/user-guide/cli)
+  * [Developer Guide](https://hermes-agent.nousresearch.com/docs/developer-guide/architecture)
+  * [Reference](https://hermes-agent.nousresearch.com/docs/reference/cli-commands)
+
+
+Community
+  * [Discord](https://discord.gg/NousResearch)
+  * [GitHub Issues](https://github.com/NousResearch/hermes-agent/issues)
+  * [Skills Hub](https://agentskills.io)
+
+
+More
+  * [Desktop Download](https://hermes-agent.nousresearch.com/)
+  * [GitHub](https://github.com/NousResearch/hermes-agent)
+  * [Nous Research](https://nousresearch.com)
+
+
+Built by [Nous Research](https://nousresearch.com) · MIT License · 2026

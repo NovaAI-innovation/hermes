@@ -1,0 +1,288 @@
+---
+title: "Android / Termux"
+source: https://hermes-agent.nousresearch.com/docs/getting-started/termux
+scraped_at: 2026-11-07T17:19:22.940855+00:00
+success: True
+status_code: 200
+---
+
+[Skip to main content](https://hermes-agent.nousresearch.com/docs/getting-started/termux#__docusaurus_skipToContent_fallback)
+[![Hermes Agent](https://hermes-agent.nousresearch.com/docs/img/logo.png) **Hermes Agent**](https://hermes-agent.nousresearch.com/docs/)[Docs](https://hermes-agent.nousresearch.com/docs/user-stories)[Skills](https://hermes-agent.nousresearch.com/docs/skills)[Plugins](https://hermes-agent.nousresearch.com/docs/plugins)[Download](https://hermes-agent.nousresearch.com/)
+[](https://hermes-agent.nousresearch.com/docs/getting-started/termux)
+  * [English](https://hermes-agent.nousresearch.com/docs/getting-started/termux)
+  * [简体中文](https://hermes-agent.nousresearch.com/docs/zh-Hans/getting-started/termux)
+
+
+[Home](https://hermes-agent.nousresearch.com)[GitHub](https://github.com/NousResearch/hermes-agent)[Discord](https://discord.gg/NousResearch)
+Search`Ctrl``K`
+  * [User Stories & Use Cases](https://hermes-agent.nousresearch.com/docs/user-stories)
+  * [Browse Skills](https://hermes-agent.nousresearch.com/docs/skills)
+  * [Browse Plugins](https://hermes-agent.nousresearch.com/docs/plugins)
+  * [Getting Started](https://hermes-agent.nousresearch.com/docs/getting-started/termux)
+    * [Hermes Agent Quickstart](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart)
+    * [Installation](https://hermes-agent.nousresearch.com/docs/getting-started/installation)
+    * [Platform Support](https://hermes-agent.nousresearch.com/docs/getting-started/platform-support)
+    * [Android / Termux](https://hermes-agent.nousresearch.com/docs/getting-started/termux)
+    * [Nix & NixOS Setup](https://hermes-agent.nousresearch.com/docs/getting-started/nix-setup)
+    * [Updating & Uninstalling](https://hermes-agent.nousresearch.com/docs/getting-started/updating)
+    * [Learning Path](https://hermes-agent.nousresearch.com/docs/getting-started/learning-path)
+    * [Official Domains & Phishing Safety](https://hermes-agent.nousresearch.com/docs/getting-started/official-domains)
+  * [Using Hermes](https://hermes-agent.nousresearch.com/docs/getting-started/termux)
+  * [Features](https://hermes-agent.nousresearch.com/docs/getting-started/termux)
+  * [Messaging Platforms](https://hermes-agent.nousresearch.com/docs/getting-started/termux)
+  * [Integrations](https://hermes-agent.nousresearch.com/docs/getting-started/termux)
+  * [Guides & Tutorials](https://hermes-agent.nousresearch.com/docs/getting-started/termux)
+  * [Developer Guide](https://hermes-agent.nousresearch.com/docs/getting-started/termux)
+  * [Reference](https://hermes-agent.nousresearch.com/docs/getting-started/termux)
+
+
+  * [](https://hermes-agent.nousresearch.com/docs/)
+  * Getting Started
+  * Android / Termux
+
+
+On this page
+# Hermes on Android with Termux
+The Termux package does not work right now. A fix is in progress and will ship soon. Until then, the steps below may fail or install a package that does not run.
+The Termux package runs Hermes on **aarch64 (arm64-v8a)** Android devices. Two APT channels are published under `https://hermes-assets.nousresearch.com/releases/termux/<channel>`:  
+| Channel  | APT suite  | Contents  |  
+| --- | --- | --- |  
+| `stable`  | `hermes-stable`  | Tagged `vMAJOR.MINOR.PATCH` releases that passed the stable release gate  |  
+| `canary`  | `hermes-canary`  | Prerelease builds from canary tags; versions carry `~canary.<timestamp>`  |  
+The steps below use `stable`. To follow prereleases, replace `stable` with `canary` and `hermes-stable` with `hermes-canary` in steps 2 and 4. Both channels are signed with the same key.
+The package includes Python, Node.js, npm, uv, ripgrep, ffmpeg, and their runtime libraries. CI builds the native Python wheels and the TUI before it creates the package. The device does not compile core dependencies or assemble its base Python environment during installation. The package uses Python 3.14 with the bionic interpreter pin; it does not require the same patch version as desktop CPython. The wheel closure is core plus `acp`, not all desktop extras.
+## Install[​](https://hermes-agent.nousresearch.com/docs/getting-started/termux#install "Direct link to Install")
+Use the standard [Termux](https://termux.dev/) application. The package requires its standard prefix, `/data/data/com.termux/files/usr`. Other architectures and renamed Termux application packages are not supported. The wheels target Android API 24 (`android_24_arm64_v8a`). Do not use the desktop/server `install.sh` or a glibc Linux archive on this target.
+  1. Install the tools for repository setup:
+
+```
+
+
+pkg install curl gnupg  
+
+
+
+```
+
+  2. Download the public key:
+
+```
+
+
+mkdir -p "$PREFIX/etc/apt/keyrings"  
+
+
+
+
+
+curl -fsSL \  
+
+
+
+
+
+  https://hermes-assets.nousresearch.com/releases/termux/stable/key.asc \  
+
+
+
+
+
+  -o "$PREFIX/etc/apt/keyrings/hermes-agent.asc"  
+
+
+
+```
+
+  3. Verify its primary fingerprint:
+
+```
+
+
+gpg --show-keys --with-fingerprint "$PREFIX/etc/apt/keyrings/hermes-agent.asc"  
+
+
+
+```
+
+The repository key fingerprint is:
+
+```
+
+
+C572 B5FD D1A2 9CCF A9A9 12B6 840B 0848 E139 156D  
+
+
+
+```
+
+If the fingerprint differs, stop. Do not disable signature verification.
+  4. Add the repository:
+
+```
+
+
+printf '%s\n' \  
+
+
+
+
+
+  "deb [signed-by=$PREFIX/etc/apt/keyrings/hermes-agent.asc] https://hermes-assets.nousresearch.com/releases/termux/stable hermes-stable main" \  
+
+
+
+
+
+  > "$PREFIX/etc/apt/sources.list.d/hermes-agent.list"  
+
+
+
+```
+
+  5. Install Hermes:
+
+```
+
+
+pkg update  
+
+
+
+
+
+pkg install hermes-agent  
+
+
+
+```
+
+  6. Configure a provider, then start the TUI:
+
+```
+
+
+hermes setup  
+
+
+
+
+
+hermes --tui  
+
+
+
+```
+
+
+
+The `hermes`, `hermes-agent`, and `hermes-acp` commands use the packaged runtimes. They do not require Termux's `python` or `nodejs` packages.
+## Files and updates[​](https://hermes-agent.nousresearch.com/docs/getting-started/termux#files-and-updates "Direct link to Files and updates")  
+| Contents  | Location  |  
+| --- | --- |  
+| Package files  | `$PREFIX/lib/hermes-agent/`  |  
+| Command symlinks  |  `$PREFIX/bin/hermes`, `$PREFIX/bin/hermes-agent`, `$PREFIX/bin/hermes-acp`  |  
+| Configuration and user data  |  `~/.hermes/`, or the selected `HERMES_HOME`  |  
+Update through APT:
+
+```
+
+
+pkg update  
+
+
+
+
+
+pkg upgrade hermes-agent  
+
+
+
+```
+
+`hermes update` refuses to modify an APT-owned installation. It prints the package-manager command instead. Canary versions contain `~canary.<timestamp>` and sort before the corresponding stable version. Each suite only lists its own channel's packages; to move between channels, edit the channel path and suite in `hermes-agent.list`, then `pkg update && pkg upgrade hermes-agent`.
+## Gateway[​](https://hermes-agent.nousresearch.com/docs/getting-started/termux#gateway "Direct link to Gateway")
+This APT installation does not use systemd, launchd, or Windows Scheduled Tasks. Run the gateway in a Termux session:
+
+```
+
+
+hermes gateway run  
+
+
+
+```
+
+For a background process:
+
+```
+
+
+mkdir -p "${HERMES_HOME:-$HOME/.hermes}/logs"  
+
+
+
+
+
+nohup hermes gateway run >> "${HERMES_HOME:-$HOME/.hermes}/logs/gateway.log" 2>&1 &  
+
+
+
+```
+
+Android can suspend or terminate background Termux processes. Battery optimization exemptions and `termux-wake-lock` can help, but do not guarantee persistent operation.
+## Limits[​](https://hermes-agent.nousresearch.com/docs/getting-started/termux#limits "Direct link to Limits")
+The package does not include the `nemo-relay` exporter. Its vendored build toolchain does not support this target.
+The package does not include Electron, a bundled Chromium, or desktop computer-use tools. The browser tool launches a system `chromium` when one is on `PATH` (`pkg install chromium`, where your repository provides it); without one, browsing is unavailable and the browser tool says so. A local Docker daemon is not part of the Termux environment. Remote services have their own requirements and connectivity limits.
+Phone-native Termux:API microphone and clipboard adapters are not provided by this package path. The prebuilt CLI/TUI is not proof of local voice or wake-word support. Optional integrations and third-party plugins can require dependencies that do not support Android.
+Python 3.14 on this target reports `sys.platform == "android"`. A dependency or skill gated only to `linux` is not automatically available on Android.
+## Uninstall[​](https://hermes-agent.nousresearch.com/docs/getting-started/termux#uninstall "Direct link to Uninstall")
+
+```
+
+
+pkg uninstall hermes-agent  
+
+
+
+```
+
+APT removes the package and its command symlinks. It preserves your configuration, sessions, skills, and memories.
+## Troubleshooting[​](https://hermes-agent.nousresearch.com/docs/getting-started/termux#troubleshooting "Direct link to Troubleshooting")
+  * **Package not found:** verify the repository entry, then run `pkg update`.
+  * **Signature error:** verify the public key fingerprint. Do not use an unsigned repository or bypass the error.
+  * **Missing command:** verify that `$PREFIX/bin` is on `PATH`, or reinstall the package.
+  * **Missing library or TUI bundle:** report `hermes --version` and the complete error. The core package must not require a local rebuild.
+  * **Gateway stops with the screen off:** review Android's battery and background-process limits.
+
+
+For general diagnostics, run `hermes doctor`.
+[](https://github.com/NousResearch/hermes-agent/edit/main/website/docs/getting-started/termux.md)
+[Previous Platform Support](https://hermes-agent.nousresearch.com/docs/getting-started/platform-support)[Next Nix & NixOS Setup](https://hermes-agent.nousresearch.com/docs/getting-started/nix-setup)
+  * [Install](https://hermes-agent.nousresearch.com/docs/getting-started/termux#install)
+  * [Files and updates](https://hermes-agent.nousresearch.com/docs/getting-started/termux#files-and-updates)
+  * [Gateway](https://hermes-agent.nousresearch.com/docs/getting-started/termux#gateway)
+  * [Limits](https://hermes-agent.nousresearch.com/docs/getting-started/termux#limits)
+  * [Uninstall](https://hermes-agent.nousresearch.com/docs/getting-started/termux#uninstall)
+  * [Troubleshooting](https://hermes-agent.nousresearch.com/docs/getting-started/termux#troubleshooting)
+
+
+Docs
+  * [Getting Started](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart)
+  * [User Guide](https://hermes-agent.nousresearch.com/docs/user-guide/cli)
+  * [Developer Guide](https://hermes-agent.nousresearch.com/docs/developer-guide/architecture)
+  * [Reference](https://hermes-agent.nousresearch.com/docs/reference/cli-commands)
+
+
+Community
+  * [Discord](https://discord.gg/NousResearch)
+  * [GitHub Issues](https://github.com/NousResearch/hermes-agent/issues)
+  * [Skills Hub](https://agentskills.io)
+
+
+More
+  * [Desktop Download](https://hermes-agent.nousresearch.com/)
+  * [GitHub](https://github.com/NousResearch/hermes-agent)
+  * [Nous Research](https://nousresearch.com)
+
+
+Built by [Nous Research](https://nousresearch.com) · MIT License · 2026

@@ -1,0 +1,1501 @@
+{
+  "documents": 249,
+  "skipped": [],
+  "warnings": [],
+  "bytes": {
+    "developer-guide/acp-internals": {
+      "raw": 16203,
+      "clean": 6740,
+      "head_stripped": 47,
+      "tail_stripped": 41
+    },
+    "developer-guide/adding-platform-adapters": {
+      "raw": 63572,
+      "clean": 43692,
+      "head_stripped": 41,
+      "tail_stripped": 64
+    },
+    "developer-guide/adding-providers": {
+      "raw": 34740,
+      "clean": 17989,
+      "head_stripped": 41,
+      "tail_stripped": 61
+    },
+    "developer-guide/adding-tools": {
+      "raw": 14444,
+      "clean": 6570,
+      "head_stripped": 41,
+      "tail_stripped": 34
+    },
+    "developer-guide/agent-loop": {
+      "raw": 22705,
+      "clean": 11272,
+      "head_stripped": 53,
+      "tail_stripped": 45
+    },
+    "developer-guide/architecture": {
+      "raw": 27392,
+      "clean": 15291,
+      "head_stripped": 53,
+      "tail_stripped": 44
+    },
+    "developer-guide/billing-lifecycle": {
+      "raw": 24725,
+      "clean": 17361,
+      "head_stripped": 47,
+      "tail_stripped": 30
+    },
+    "developer-guide/browser-provider-plugin": {
+      "raw": 17021,
+      "clean": 6871,
+      "head_stripped": 61,
+      "tail_stripped": 33
+    },
+    "developer-guide/browser-supervisor": {
+      "raw": 20996,
+      "clean": 12220,
+      "head_stripped": 47,
+      "tail_stripped": 38
+    },
+    "developer-guide/browser-vault-plugin": {
+      "raw": 18381,
+      "clean": 9624,
+      "head_stripped": 61,
+      "tail_stripped": 30
+    },
+    "developer-guide/chronos-managed-cron-contract": {
+      "raw": 21290,
+      "clean": 12446,
+      "head_stripped": 47,
+      "tail_stripped": 33
+    },
+    "developer-guide/cli-internals": {
+      "raw": 22033,
+      "clean": 18322,
+      "head_stripped": 10,
+      "tail_stripped": 29
+    },
+    "developer-guide/codebase-ownership": {
+      "raw": 10392,
+      "clean": 3711,
+      "head_stripped": 52,
+      "tail_stripped": 22
+    },
+    "developer-guide/completion-backlog-delivery": {
+      "raw": 9554,
+      "clean": 2946,
+      "head_stripped": 53,
+      "tail_stripped": 26
+    },
+    "developer-guide/config-backend": {
+      "raw": 10283,
+      "clean": 4043,
+      "head_stripped": 53,
+      "tail_stripped": 26
+    },
+    "developer-guide/context-compression-and-caching": {
+      "raw": 70516,
+      "clean": 49052,
+      "head_stripped": 53,
+      "tail_stripped": 55
+    },
+    "developer-guide/context-engine-plugin": {
+      "raw": 32997,
+      "clean": 20610,
+      "head_stripped": 61,
+      "tail_stripped": 41
+    },
+    "developer-guide/contributing": {
+      "raw": 36262,
+      "clean": 23819,
+      "head_stripped": 34,
+      "tail_stripped": 54
+    },
+    "developer-guide/creating-skills": {
+      "raw": 32270,
+      "clean": 20368,
+      "head_stripped": 41,
+      "tail_stripped": 46
+    },
+    "developer-guide/cron-internals": {
+      "raw": 41997,
+      "clean": 29859,
+      "head_stripped": 47,
+      "tail_stripped": 49
+    },
+    "developer-guide/delegation-provider-plugin": {
+      "raw": 21882,
+      "clean": 12232,
+      "head_stripped": 61,
+      "tail_stripped": 33
+    },
+    "developer-guide/desktop-plugin-sdk": {
+      "raw": 158735,
+      "clean": 132105,
+      "head_stripped": 61,
+      "tail_stripped": 68
+    },
+    "developer-guide/egress-internals": {
+      "raw": 32661,
+      "clean": 20192,
+      "head_stripped": 47,
+      "tail_stripped": 46
+    },
+    "developer-guide/extending-the-cli": {
+      "raw": 14486,
+      "clean": 7277,
+      "head_stripped": 41,
+      "tail_stripped": 32
+    },
+    "developer-guide/gateway-classic-cli": {
+      "raw": 14000,
+      "clean": 7442,
+      "head_stripped": 53,
+      "tail_stripped": 26
+    },
+    "developer-guide/gateway-command-parity": {
+      "raw": 22669,
+      "clean": 16560,
+      "head_stripped": 52,
+      "tail_stripped": 22
+    },
+    "developer-guide/gateway-internals": {
+      "raw": 86884,
+      "clean": 68312,
+      "head_stripped": 53,
+      "tail_stripped": 65
+    },
+    "developer-guide/gateway-local-sessions": {
+      "raw": 30604,
+      "clean": 23455,
+      "head_stripped": 53,
+      "tail_stripped": 28
+    },
+    "developer-guide/gateway-monitoring": {
+      "raw": 25222,
+      "clean": 15146,
+      "head_stripped": 47,
+      "tail_stripped": 38
+    },
+    "developer-guide/gateway-session-lifecycle": {
+      "raw": 55117,
+      "clean": 33595,
+      "head_stripped": 53,
+      "tail_stripped": 73
+    },
+    "developer-guide/hosted-profile-owners": {
+      "raw": 5678,
+      "clean": 3821,
+      "head_stripped": 9,
+      "tail_stripped": 21
+    },
+    "developer-guide/image-gen-provider-plugin": {
+      "raw": 25160,
+      "clean": 13407,
+      "head_stripped": 61,
+      "tail_stripped": 36
+    },
+    "developer-guide/macos-bundle-updates": {
+      "raw": 10386,
+      "clean": 4899,
+      "head_stripped": 40,
+      "tail_stripped": 28
+    },
+    "developer-guide/memory-provider-plugin": {
+      "raw": 49873,
+      "clean": 33913,
+      "head_stripped": 61,
+      "tail_stripped": 53
+    },
+    "developer-guide/micro-compaction": {
+      "raw": 30886,
+      "clean": 20043,
+      "head_stripped": 53,
+      "tail_stripped": 41
+    },
+    "developer-guide/middleware": {
+      "raw": 19836,
+      "clean": 10003,
+      "head_stripped": 61,
+      "tail_stripped": 35
+    },
+    "developer-guide/model-provider-plugin": {
+      "raw": 76561,
+      "clean": 59911,
+      "head_stripped": 61,
+      "tail_stripped": 48
+    },
+    "developer-guide/multiplexing-gateway": {
+      "raw": 29826,
+      "clean": 19345,
+      "head_stripped": 53,
+      "tail_stripped": 40
+    },
+    "developer-guide/observer-hooks": {
+      "raw": 24781,
+      "clean": 14094,
+      "head_stripped": 61,
+      "tail_stripped": 38
+    },
+    "developer-guide/plugin-llm-access": {
+      "raw": 44654,
+      "clean": 29389,
+      "head_stripped": 61,
+      "tail_stripped": 48
+    },
+    "developer-guide/plugins/application-declarations": {
+      "raw": 17492,
+      "clean": 8610,
+      "head_stripped": 61,
+      "tail_stripped": 28
+    },
+    "developer-guide/plugins/catalog-submission": {
+      "raw": 25266,
+      "clean": 16495,
+      "head_stripped": 61,
+      "tail_stripped": 30
+    },
+    "developer-guide/plugins/public-api": {
+      "raw": 16914,
+      "clean": 9991,
+      "head_stripped": 60,
+      "tail_stripped": 22
+    },
+    "developer-guide/plugins": {
+      "raw": 184162,
+      "clean": 147737,
+      "head_stripped": 60,
+      "tail_stripped": 91
+    },
+    "developer-guide/pm-audit-status": {
+      "raw": 20080,
+      "clean": 13282,
+      "head_stripped": 40,
+      "tail_stripped": 32
+    },
+    "developer-guide/programmatic-integration": {
+      "raw": 37247,
+      "clean": 25782,
+      "head_stripped": 53,
+      "tail_stripped": 39
+    },
+    "developer-guide/prompt-assembly": {
+      "raw": 29619,
+      "clean": 18265,
+      "head_stripped": 53,
+      "tail_stripped": 40
+    },
+    "developer-guide/provider-runtime": {
+      "raw": 21078,
+      "clean": 10956,
+      "head_stripped": 53,
+      "tail_stripped": 39
+    },
+    "developer-guide/relay-connector-contract": {
+      "raw": 65815,
+      "clean": 52199,
+      "head_stripped": 47,
+      "tail_stripped": 46
+    },
+    "developer-guide/relay-shared-metrics": {
+      "raw": 108141,
+      "clean": 95608,
+      "head_stripped": 47,
+      "tail_stripped": 41
+    },
+    "developer-guide/secret-source-plugin": {
+      "raw": 21689,
+      "clean": 10729,
+      "head_stripped": 61,
+      "tail_stripped": 36
+    },
+    "developer-guide/session-storage": {
+      "raw": 46838,
+      "clean": 31531,
+      "head_stripped": 53,
+      "tail_stripped": 54
+    },
+    "developer-guide/shared-bundle-builds": {
+      "raw": 33060,
+      "clean": 25005,
+      "head_stripped": 40,
+      "tail_stripped": 35
+    },
+    "developer-guide/source-update-completion": {
+      "raw": 24827,
+      "clean": 17636,
+      "head_stripped": 40,
+      "tail_stripped": 33
+    },
+    "developer-guide/stable-releases": {
+      "raw": 40154,
+      "clean": 32850,
+      "head_stripped": 40,
+      "tail_stripped": 34
+    },
+    "developer-guide/state-db-recovery": {
+      "raw": 11760,
+      "clean": 4909,
+      "head_stripped": 53,
+      "tail_stripped": 27
+    },
+    "developer-guide/streaming-tts": {
+      "raw": 12362,
+      "clean": 5639,
+      "head_stripped": 47,
+      "tail_stripped": 30
+    },
+    "developer-guide/subagent-lifecycle-api": {
+      "raw": 11614,
+      "clean": 4453,
+      "head_stripped": 61,
+      "tail_stripped": 25
+    },
+    "developer-guide/terminal-environment-plugin": {
+      "raw": 20856,
+      "clean": 10821,
+      "head_stripped": 61,
+      "tail_stripped": 33
+    },
+    "developer-guide/tools-runtime": {
+      "raw": 21965,
+      "clean": 12090,
+      "head_stripped": 47,
+      "tail_stripped": 40
+    },
+    "developer-guide/trajectory-format": {
+      "raw": 18135,
+      "clean": 8164,
+      "head_stripped": 47,
+      "tail_stripped": 38
+    },
+    "developer-guide/video-gen-provider-plugin": {
+      "raw": 20225,
+      "clean": 9295,
+      "head_stripped": 61,
+      "tail_stripped": 35
+    },
+    "developer-guide/web-search-provider-plugin": {
+      "raw": 22988,
+      "clean": 11584,
+      "head_stripped": 61,
+      "tail_stripped": 36
+    },
+    "developer-guide/worktree-ui-dev": {
+      "raw": 14798,
+      "clean": 9012,
+      "head_stripped": 34,
+      "tail_stripped": 29
+    },
+    "getting-started/installation": {
+      "raw": 21191,
+      "clean": 12817,
+      "head_stripped": 36,
+      "tail_stripped": 36
+    },
+    "getting-started/learning-path": {
+      "raw": 20053,
+      "clean": 9454,
+      "head_stripped": 36,
+      "tail_stripped": 36
+    },
+    "getting-started/nix-setup": {
+      "raw": 80170,
+      "clean": 56117,
+      "head_stripped": 36,
+      "tail_stripped": 91
+    },
+    "getting-started/official-domains": {
+      "raw": 9979,
+      "clean": 4766,
+      "head_stripped": 36,
+      "tail_stripped": 28
+    },
+    "getting-started/platform-support": {
+      "raw": 9577,
+      "clean": 4101,
+      "head_stripped": 36,
+      "tail_stripped": 28
+    },
+    "getting-started/quickstart": {
+      "raw": 32041,
+      "clean": 19649,
+      "head_stripped": 36,
+      "tail_stripped": 51
+    },
+    "getting-started/termux": {
+      "raw": 10956,
+      "clean": 5782,
+      "head_stripped": 36,
+      "tail_stripped": 30
+    },
+    "getting-started/updating": {
+      "raw": 75215,
+      "clean": 59380,
+      "head_stripped": 36,
+      "tail_stripped": 59
+    },
+    "guides/agent-email-address": {
+      "raw": 12963,
+      "clean": 4832,
+      "head_stripped": 58,
+      "tail_stripped": 29
+    },
+    "guides/automate-with-cron": {
+      "raw": 21809,
+      "clean": 12100,
+      "head_stripped": 58,
+      "tail_stripped": 33
+    },
+    "guides/automation-blueprints": {
+      "raw": 35318,
+      "clean": 19533,
+      "head_stripped": 58,
+      "tail_stripped": 52
+    },
+    "guides/aws-bedrock": {
+      "raw": 22537,
+      "clean": 11895,
+      "head_stripped": 58,
+      "tail_stripped": 41
+    },
+    "guides/azure-foundry": {
+      "raw": 35922,
+      "clean": 23879,
+      "head_stripped": 58,
+      "tail_stripped": 43
+    },
+    "guides/cron-script-only": {
+      "raw": 23917,
+      "clean": 12847,
+      "head_stripped": 58,
+      "tail_stripped": 39
+    },
+    "guides/cron-troubleshooting": {
+      "raw": 25245,
+      "clean": 10650,
+      "head_stripped": 58,
+      "tail_stripped": 51
+    },
+    "guides/daily-briefing-bot": {
+      "raw": 22112,
+      "clean": 10122,
+      "head_stripped": 58,
+      "tail_stripped": 42
+    },
+    "guides/delegation-patterns": {
+      "raw": 20680,
+      "clean": 11094,
+      "head_stripped": 58,
+      "tail_stripped": 34
+    },
+    "guides/desktop-native-signin": {
+      "raw": 9265,
+      "clean": 5830,
+      "head_stripped": 10,
+      "tail_stripped": 29
+    },
+    "guides/github-pr-review-agent": {
+      "raw": 20999,
+      "clean": 8812,
+      "head_stripped": 58,
+      "tail_stripped": 42
+    },
+    "guides/google-gemini": {
+      "raw": 22089,
+      "clean": 13983,
+      "head_stripped": 10,
+      "tail_stripped": 45
+    },
+    "guides/google-vertex": {
+      "raw": 16371,
+      "clean": 6420,
+      "head_stripped": 58,
+      "tail_stripped": 38
+    },
+    "guides/local-llm-on-mac": {
+      "raw": 21020,
+      "clean": 9630,
+      "head_stripped": 58,
+      "tail_stripped": 44
+    },
+    "guides/local-ollama-setup": {
+      "raw": 22416,
+      "clean": 12897,
+      "head_stripped": 10,
+      "tail_stripped": 49
+    },
+    "guides/manage-hermes-cloud-with-mcp": {
+      "raw": 18711,
+      "clean": 7233,
+      "head_stripped": 58,
+      "tail_stripped": 39
+    },
+    "guides/microsoft-graph-app-registration": {
+      "raw": 19516,
+      "clean": 8313,
+      "head_stripped": 58,
+      "tail_stripped": 37
+    },
+    "guides/migrate-from-openclaw": {
+      "raw": 29981,
+      "clean": 16965,
+      "head_stripped": 58,
+      "tail_stripped": 47
+    },
+    "guides/minimax-oauth": {
+      "raw": 16019,
+      "clean": 8141,
+      "head_stripped": 10,
+      "tail_stripped": 46
+    },
+    "guides/oauth-over-ssh": {
+      "raw": 20213,
+      "clean": 9322,
+      "head_stripped": 58,
+      "tail_stripped": 39
+    },
+    "guides/operate-teams-meeting-pipeline": {
+      "raw": 23688,
+      "clean": 8875,
+      "head_stripped": 58,
+      "tail_stripped": 47
+    },
+    "guides/pipe-script-output": {
+      "raw": 15504,
+      "clean": 9179,
+      "head_stripped": 10,
+      "tail_stripped": 38
+    },
+    "guides/python-library": {
+      "raw": 20911,
+      "clean": 10252,
+      "head_stripped": 58,
+      "tail_stripped": 38
+    },
+    "guides/run-hermes-with-nous-portal": {
+      "raw": 26265,
+      "clean": 11553,
+      "head_stripped": 58,
+      "tail_stripped": 46
+    },
+    "guides/run-nemotron-3-ultra-free": {
+      "raw": 15381,
+      "clean": 4512,
+      "head_stripped": 58,
+      "tail_stripped": 39
+    },
+    "guides/secure-hermes-on-a-work-machine": {
+      "raw": 20781,
+      "clean": 10092,
+      "head_stripped": 58,
+      "tail_stripped": 35
+    },
+    "guides/team-telegram-assistant": {
+      "raw": 28978,
+      "clean": 13248,
+      "head_stripped": 58,
+      "tail_stripped": 54
+    },
+    "guides/tips": {
+      "raw": 28804,
+      "clean": 12585,
+      "head_stripped": 58,
+      "tail_stripped": 64
+    },
+    "guides/troubleshooting-agent-quality": {
+      "raw": 19920,
+      "clean": 10313,
+      "head_stripped": 58,
+      "tail_stripped": 32
+    },
+    "guides/use-mcp-with-hermes": {
+      "raw": 33641,
+      "clean": 14501,
+      "head_stripped": 58,
+      "tail_stripped": 63
+    },
+    "guides/use-soul-with-hermes": {
+      "raw": 20390,
+      "clean": 7288,
+      "head_stripped": 58,
+      "tail_stripped": 48
+    },
+    "guides/use-voice-mode-with-hermes": {
+      "raw": 33108,
+      "clean": 10823,
+      "head_stripped": 58,
+      "tail_stripped": 74
+    },
+    "guides/webhook-github-pr-review": {
+      "raw": 26325,
+      "clean": 14890,
+      "head_stripped": 58,
+      "tail_stripped": 38
+    },
+    "guides/work-with-skills": {
+      "raw": 19960,
+      "clean": 8788,
+      "head_stripped": 58,
+      "tail_stripped": 41
+    },
+    "guides/xai-grok-oauth": {
+      "raw": 23552,
+      "clean": 11388,
+      "head_stripped": 58,
+      "tail_stripped": 45
+    },
+    "integrations/buzz": {
+      "raw": 9169,
+      "clean": 3893,
+      "head_stripped": 37,
+      "tail_stripped": 29
+    },
+    "integrations/nous-portal": {
+      "raw": 26982,
+      "clean": 15370,
+      "head_stripped": 37,
+      "tail_stripped": 48
+    },
+    "integrations/providers": {
+      "raw": 118316,
+      "clean": 95674,
+      "head_stripped": 37,
+      "tail_stripped": 68
+    },
+    "integrations": {
+      "raw": 19005,
+      "clean": 10263,
+      "head_stripped": 37,
+      "tail_stripped": 38
+    },
+    "reference/automation-blueprints-catalog": {
+      "raw": 8120,
+      "clean": 2033,
+      "head_stripped": 50,
+      "tail_stripped": 26
+    },
+    "reference/cli-commands": {
+      "raw": 177370,
+      "clean": 144801,
+      "head_stripped": 38,
+      "tail_stripped": 114
+    },
+    "reference/cli-symbols": {
+      "raw": 11563,
+      "clean": 5597,
+      "head_stripped": 33,
+      "tail_stripped": 33
+    },
+    "reference/environment-variables": {
+      "raw": 128152,
+      "clean": 111770,
+      "head_stripped": 37,
+      "tail_stripped": 59
+    },
+    "reference/faq": {
+      "raw": 62986,
+      "clean": 42306,
+      "head_stripped": 33,
+      "tail_stripped": 60
+    },
+    "reference/mcp-config-reference": {
+      "raw": 37918,
+      "clean": 25590,
+      "head_stripped": 37,
+      "tail_stripped": 51
+    },
+    "reference/model-catalog": {
+      "raw": 12606,
+      "clean": 6450,
+      "head_stripped": 37,
+      "tail_stripped": 32
+    },
+    "reference/optional-skills-catalog": {
+      "raw": 39536,
+      "clean": 23471,
+      "head_stripped": 49,
+      "tail_stripped": 47
+    },
+    "reference/package-management": {
+      "raw": 54929,
+      "clean": 45018,
+      "head_stripped": 38,
+      "tail_stripped": 43
+    },
+    "reference/profile-commands": {
+      "raw": 34995,
+      "clean": 23526,
+      "head_stripped": 38,
+      "tail_stripped": 47
+    },
+    "reference/skills-catalog": {
+      "raw": 18920,
+      "clean": 9680,
+      "head_stripped": 49,
+      "tail_stripped": 36
+    },
+    "reference/slash-commands": {
+      "raw": 61634,
+      "clean": 52138,
+      "head_stripped": 38,
+      "tail_stripped": 38
+    },
+    "reference/tools-reference": {
+      "raw": 51448,
+      "clean": 39463,
+      "head_stripped": 38,
+      "tail_stripped": 55
+    },
+    "reference/toolsets-reference": {
+      "raw": 21107,
+      "clean": 13506,
+      "head_stripped": 38,
+      "tail_stripped": 37
+    },
+    "user-guide/bot-mode": {
+      "raw": 79311,
+      "clean": 67584,
+      "head_stripped": 52,
+      "tail_stripped": 45
+    },
+    "user-guide/checkpoints-and-rollback": {
+      "raw": 26174,
+      "clean": 15261,
+      "head_stripped": 52,
+      "tail_stripped": 41
+    },
+    "user-guide/cli": {
+      "raw": 56864,
+      "clean": 42990,
+      "head_stripped": 52,
+      "tail_stripped": 56
+    },
+    "user-guide/configuration": {
+      "raw": 318852,
+      "clean": 271415,
+      "head_stripped": 52,
+      "tail_stripped": 152
+    },
+    "user-guide/configuring-models": {
+      "raw": 43368,
+      "clean": 29432,
+      "head_stripped": 52,
+      "tail_stripped": 49
+    },
+    "user-guide/desktop": {
+      "raw": 132921,
+      "clean": 113225,
+      "head_stripped": 52,
+      "tail_stripped": 67
+    },
+    "user-guide/docker": {
+      "raw": 81390,
+      "clean": 60214,
+      "head_stripped": 52,
+      "tail_stripped": 69
+    },
+    "user-guide/egress/iron-proxy": {
+      "raw": 56717,
+      "clean": 39976,
+      "head_stripped": 56,
+      "tail_stripped": 59
+    },
+    "user-guide/egress/network-isolation": {
+      "raw": 15170,
+      "clean": 6743,
+      "head_stripped": 56,
+      "tail_stripped": 31
+    },
+    "user-guide/egress": {
+      "raw": 6061,
+      "clean": 382,
+      "head_stripped": 55,
+      "tail_stripped": 22
+    },
+    "user-guide/features/acp": {
+      "raw": 28967,
+      "clean": 18488,
+      "head_stripped": 37,
+      "tail_stripped": 47
+    },
+    "user-guide/features/api-server": {
+      "raw": 72860,
+      "clean": 52419,
+      "head_stripped": 40,
+      "tail_stripped": 76
+    },
+    "user-guide/features/batch-processing": {
+      "raw": 19498,
+      "clean": 8926,
+      "head_stripped": 50,
+      "tail_stripped": 42
+    },
+    "user-guide/features/bot-screen": {
+      "raw": 33648,
+      "clean": 25430,
+      "head_stripped": 50,
+      "tail_stripped": 35
+    },
+    "user-guide/features/browser": {
+      "raw": 50654,
+      "clean": 37781,
+      "head_stripped": 50,
+      "tail_stripped": 48
+    },
+    "user-guide/features/built-in-plugins": {
+      "raw": 29610,
+      "clean": 20300,
+      "head_stripped": 54,
+      "tail_stripped": 34
+    },
+    "user-guide/features/code-execution": {
+      "raw": 26703,
+      "clean": 15635,
+      "head_stripped": 50,
+      "tail_stripped": 42
+    },
+    "user-guide/features/codex-app-server-runtime": {
+      "raw": 52285,
+      "clean": 36894,
+      "head_stripped": 50,
+      "tail_stripped": 52
+    },
+    "user-guide/features/computer-use": {
+      "raw": 47154,
+      "clean": 34216,
+      "head_stripped": 50,
+      "tail_stripped": 49
+    },
+    "user-guide/features/context-files": {
+      "raw": 22325,
+      "clean": 12193,
+      "head_stripped": 54,
+      "tail_stripped": 38
+    },
+    "user-guide/features/context-references": {
+      "raw": 14667,
+      "clean": 5208,
+      "head_stripped": 54,
+      "tail_stripped": 37
+    },
+    "user-guide/features/credential-pools": {
+      "raw": 29671,
+      "clean": 21033,
+      "head_stripped": 37,
+      "tail_stripped": 38
+    },
+    "user-guide/features/credential-vault": {
+      "raw": 19510,
+      "clean": 11143,
+      "head_stripped": 50,
+      "tail_stripped": 34
+    },
+    "user-guide/features/cron": {
+      "raw": 113102,
+      "clean": 85306,
+      "head_stripped": 50,
+      "tail_stripped": 95
+    },
+    "user-guide/features/curator": {
+      "raw": 40630,
+      "clean": 29895,
+      "head_stripped": 54,
+      "tail_stripped": 41
+    },
+    "user-guide/features/delegation": {
+      "raw": 79505,
+      "clean": 61588,
+      "head_stripped": 50,
+      "tail_stripped": 64
+    },
+    "user-guide/features/deliverable-mode": {
+      "raw": 12980,
+      "clean": 5642,
+      "head_stripped": 50,
+      "tail_stripped": 30
+    },
+    "user-guide/features/document-extraction": {
+      "raw": 11316,
+      "clean": 4894,
+      "head_stripped": 54,
+      "tail_stripped": 26
+    },
+    "user-guide/features/extending-the-dashboard": {
+      "raw": 62472,
+      "clean": 44251,
+      "head_stripped": 40,
+      "tail_stripped": 53
+    },
+    "user-guide/features/fallback-providers": {
+      "raw": 37441,
+      "clean": 26425,
+      "head_stripped": 37,
+      "tail_stripped": 44
+    },
+    "user-guide/features/goals": {
+      "raw": 34151,
+      "clean": 22371,
+      "head_stripped": 50,
+      "tail_stripped": 47
+    },
+    "user-guide/features/heartbeat": {
+      "raw": 11921,
+      "clean": 5541,
+      "head_stripped": 50,
+      "tail_stripped": 28
+    },
+    "user-guide/features/honcho": {
+      "raw": 31650,
+      "clean": 20913,
+      "head_stripped": 54,
+      "tail_stripped": 42
+    },
+    "user-guide/features/hooks": {
+      "raw": 172574,
+      "clean": 142918,
+      "head_stripped": 50,
+      "tail_stripped": 82
+    },
+    "user-guide/features/image-generation": {
+      "raw": 32620,
+      "clean": 21230,
+      "head_stripped": 50,
+      "tail_stripped": 45
+    },
+    "user-guide/features/kanban-multi-gateway": {
+      "raw": 8439,
+      "clean": 2095,
+      "head_stripped": 50,
+      "tail_stripped": 27
+    },
+    "user-guide/features/kanban-tutorial": {
+      "raw": 31095,
+      "clean": 20440,
+      "head_stripped": 50,
+      "tail_stripped": 37
+    },
+    "user-guide/features/kanban-worker-lanes": {
+      "raw": 24221,
+      "clean": 14509,
+      "head_stripped": 50,
+      "tail_stripped": 38
+    },
+    "user-guide/features/kanban": {
+      "raw": 150843,
+      "clean": 125275,
+      "head_stripped": 50,
+      "tail_stripped": 85
+    },
+    "user-guide/features/language-packs": {
+      "raw": 14778,
+      "clean": 6588,
+      "head_stripped": 54,
+      "tail_stripped": 33
+    },
+    "user-guide/features/loops": {
+      "raw": 16148,
+      "clean": 8640,
+      "head_stripped": 50,
+      "tail_stripped": 33
+    },
+    "user-guide/features/lsp": {
+      "raw": 32983,
+      "clean": 23715,
+      "head_stripped": 54,
+      "tail_stripped": 37
+    },
+    "user-guide/features/mcp": {
+      "raw": 79330,
+      "clean": 56369,
+      "head_stripped": 37,
+      "tail_stripped": 88
+    },
+    "user-guide/features/memory-providers": {
+      "raw": 62331,
+      "clean": 47829,
+      "head_stripped": 54,
+      "tail_stripped": 47
+    },
+    "user-guide/features/memory": {
+      "raw": 47761,
+      "clean": 31756,
+      "head_stripped": 54,
+      "tail_stripped": 56
+    },
+    "user-guide/features/mixture-of-agents": {
+      "raw": 23745,
+      "clean": 14380,
+      "head_stripped": 54,
+      "tail_stripped": 36
+    },
+    "user-guide/features/overview": {
+      "raw": 13791,
+      "clean": 7876,
+      "head_stripped": 35,
+      "tail_stripped": 29
+    },
+    "user-guide/features/personality": {
+      "raw": 21897,
+      "clean": 9672,
+      "head_stripped": 54,
+      "tail_stripped": 47
+    },
+    "user-guide/features/pets": {
+      "raw": 19301,
+      "clean": 10519,
+      "head_stripped": 50,
+      "tail_stripped": 39
+    },
+    "user-guide/features/plugin-catalog": {
+      "raw": 24873,
+      "clean": 16323,
+      "head_stripped": 54,
+      "tail_stripped": 33
+    },
+    "user-guide/features/plugins": {
+      "raw": 98386,
+      "clean": 79860,
+      "head_stripped": 54,
+      "tail_stripped": 56
+    },
+    "user-guide/features/provider-routing": {
+      "raw": 16081,
+      "clean": 6929,
+      "head_stripped": 37,
+      "tail_stripped": 42
+    },
+    "user-guide/features/skills": {
+      "raw": 81739,
+      "clean": 58582,
+      "head_stripped": 54,
+      "tail_stripped": 72
+    },
+    "user-guide/features/skins": {
+      "raw": 23520,
+      "clean": 13310,
+      "head_stripped": 54,
+      "tail_stripped": 40
+    },
+    "user-guide/features/spotify": {
+      "raw": 26523,
+      "clean": 14837,
+      "head_stripped": 50,
+      "tail_stripped": 45
+    },
+    "user-guide/features/subscription-proxy": {
+      "raw": 14904,
+      "clean": 6617,
+      "head_stripped": 40,
+      "tail_stripped": 37
+    },
+    "user-guide/features/tool-gateway": {
+      "raw": 26400,
+      "clean": 16163,
+      "head_stripped": 35,
+      "tail_stripped": 44
+    },
+    "user-guide/features/tool-search": {
+      "raw": 26347,
+      "clean": 18099,
+      "head_stripped": 54,
+      "tail_stripped": 33
+    },
+    "user-guide/features/tools": {
+      "raw": 28569,
+      "clean": 17974,
+      "head_stripped": 54,
+      "tail_stripped": 41
+    },
+    "user-guide/features/tts": {
+      "raw": 63438,
+      "clean": 48568,
+      "head_stripped": 50,
+      "tail_stripped": 43
+    },
+    "user-guide/features/vision": {
+      "raw": 28210,
+      "clean": 16815,
+      "head_stripped": 50,
+      "tail_stripped": 44
+    },
+    "user-guide/features/voice-mode": {
+      "raw": 53074,
+      "clean": 34255,
+      "head_stripped": 50,
+      "tail_stripped": 68
+    },
+    "user-guide/features/wake-word": {
+      "raw": 26374,
+      "clean": 16298,
+      "head_stripped": 50,
+      "tail_stripped": 40
+    },
+    "user-guide/features/web-dashboard": {
+      "raw": 117146,
+      "clean": 89031,
+      "head_stripped": 40,
+      "tail_stripped": 98
+    },
+    "user-guide/features/web-search": {
+      "raw": 37592,
+      "clean": 24349,
+      "head_stripped": 50,
+      "tail_stripped": 49
+    },
+    "user-guide/features/x-search": {
+      "raw": 18505,
+      "clean": 9639,
+      "head_stripped": 50,
+      "tail_stripped": 37
+    },
+    "user-guide/git-worktrees": {
+      "raw": 21753,
+      "clean": 12489,
+      "head_stripped": 52,
+      "tail_stripped": 36
+    },
+    "user-guide/import-from-other-agents": {
+      "raw": 16838,
+      "clean": 11209,
+      "head_stripped": 10,
+      "tail_stripped": 36
+    },
+    "user-guide/local-models": {
+      "raw": 14097,
+      "clean": 9860,
+      "head_stripped": 10,
+      "tail_stripped": 32
+    },
+    "user-guide/managed-scope": {
+      "raw": 13269,
+      "clean": 6072,
+      "head_stripped": 52,
+      "tail_stripped": 30
+    },
+    "user-guide/messaging/a2a": {
+      "raw": 17523,
+      "clean": 10077,
+      "head_stripped": 49,
+      "tail_stripped": 33
+    },
+    "user-guide/messaging/bluebubbles": {
+      "raw": 25156,
+      "clean": 12113,
+      "head_stripped": 49,
+      "tail_stripped": 52
+    },
+    "user-guide/messaging/buzz": {
+      "raw": 19833,
+      "clean": 11879,
+      "head_stripped": 49,
+      "tail_stripped": 35
+    },
+    "user-guide/messaging/dingtalk": {
+      "raw": 22880,
+      "clean": 11846,
+      "head_stripped": 41,
+      "tail_stripped": 47
+    },
+    "user-guide/messaging/discord": {
+      "raw": 84932,
+      "clean": 62301,
+      "head_stripped": 42,
+      "tail_stripped": 73
+    },
+    "user-guide/messaging/email": {
+      "raw": 22070,
+      "clean": 13325,
+      "head_stripped": 42,
+      "tail_stripped": 41
+    },
+    "user-guide/messaging/feishu": {
+      "raw": 48605,
+      "clean": 31345,
+      "head_stripped": 41,
+      "tail_stripped": 70
+    },
+    "user-guide/messaging/google_chat": {
+      "raw": 28137,
+      "clean": 16608,
+      "head_stripped": 49,
+      "tail_stripped": 45
+    },
+    "user-guide/messaging/homeassistant": {
+      "raw": 24097,
+      "clean": 12620,
+      "head_stripped": 49,
+      "tail_stripped": 46
+    },
+    "user-guide/messaging/irc": {
+      "raw": 10704,
+      "clean": 3765,
+      "head_stripped": 49,
+      "tail_stripped": 32
+    },
+    "user-guide/messaging/line": {
+      "raw": 17037,
+      "clean": 8875,
+      "head_stripped": 49,
+      "tail_stripped": 35
+    },
+    "user-guide/messaging/matrix": {
+      "raw": 59404,
+      "clean": 38599,
+      "head_stripped": 49,
+      "tail_stripped": 75
+    },
+    "user-guide/messaging/mattermost": {
+      "raw": 27066,
+      "clean": 14397,
+      "head_stripped": 49,
+      "tail_stripped": 50
+    },
+    "user-guide/messaging/msgraph-webhook": {
+      "raw": 15296,
+      "clean": 8209,
+      "head_stripped": 37,
+      "tail_stripped": 34
+    },
+    "user-guide/messaging/ntfy": {
+      "raw": 15831,
+      "clean": 7441,
+      "head_stripped": 49,
+      "tail_stripped": 36
+    },
+    "user-guide/messaging/open-webui": {
+      "raw": 25051,
+      "clean": 12269,
+      "head_stripped": 49,
+      "tail_stripped": 50
+    },
+    "user-guide/messaging/photon": {
+      "raw": 16889,
+      "clean": 9541,
+      "head_stripped": 49,
+      "tail_stripped": 33
+    },
+    "user-guide/messaging/qqbot": {
+      "raw": 12830,
+      "clean": 5061,
+      "head_stripped": 41,
+      "tail_stripped": 37
+    },
+    "user-guide/messaging/raft": {
+      "raw": 6161,
+      "clean": 3186,
+      "head_stripped": 10,
+      "tail_stripped": 28
+    },
+    "user-guide/messaging/relay": {
+      "raw": 17728,
+      "clean": 11434,
+      "head_stripped": 49,
+      "tail_stripped": 29
+    },
+    "user-guide/messaging/signal": {
+      "raw": 20625,
+      "clean": 10746,
+      "head_stripped": 42,
+      "tail_stripped": 45
+    },
+    "user-guide/messaging/simplex": {
+      "raw": 14771,
+      "clean": 6190,
+      "head_stripped": 49,
+      "tail_stripped": 38
+    },
+    "user-guide/messaging/slack": {
+      "raw": 75965,
+      "clean": 55507,
+      "head_stripped": 42,
+      "tail_stripped": 74
+    },
+    "user-guide/messaging/sms": {
+      "raw": 15130,
+      "clean": 6578,
+      "head_stripped": 42,
+      "tail_stripped": 40
+    },
+    "user-guide/messaging/teams-meetings": {
+      "raw": 16460,
+      "clean": 8067,
+      "head_stripped": 37,
+      "tail_stripped": 37
+    },
+    "user-guide/messaging/teams": {
+      "raw": 21341,
+      "clean": 12241,
+      "head_stripped": 37,
+      "tail_stripped": 41
+    },
+    "user-guide/messaging/telegram": {
+      "raw": 113948,
+      "clean": 81434,
+      "head_stripped": 42,
+      "tail_stripped": 114
+    },
+    "user-guide/messaging/webhooks": {
+      "raw": 57128,
+      "clean": 35696,
+      "head_stripped": 49,
+      "tail_stripped": 81
+    },
+    "user-guide/messaging/wecom-callback": {
+      "raw": 15350,
+      "clean": 7340,
+      "head_stripped": 41,
+      "tail_stripped": 37
+    },
+    "user-guide/messaging/wecom": {
+      "raw": 24130,
+      "clean": 13380,
+      "head_stripped": 41,
+      "tail_stripped": 46
+    },
+    "user-guide/messaging/weixin": {
+      "raw": 29445,
+      "clean": 18706,
+      "head_stripped": 41,
+      "tail_stripped": 49
+    },
+    "user-guide/messaging/whatsapp-cloud": {
+      "raw": 38911,
+      "clean": 23984,
+      "head_stripped": 42,
+      "tail_stripped": 58
+    },
+    "user-guide/messaging/whatsapp": {
+      "raw": 27628,
+      "clean": 17934,
+      "head_stripped": 42,
+      "tail_stripped": 43
+    },
+    "user-guide/messaging/yuanbao": {
+      "raw": 6198,
+      "clean": 1718,
+      "head_stripped": 41,
+      "tail_stripped": 25
+    },
+    "user-guide/messaging": {
+      "raw": 82500,
+      "clean": 62015,
+      "head_stripped": 33,
+      "tail_stripped": 76
+    },
+    "user-guide/multi-connection-desktop": {
+      "raw": 30900,
+      "clean": 21703,
+      "head_stripped": 52,
+      "tail_stripped": 36
+    },
+    "user-guide/multi-profile-gateways": {
+      "raw": 98235,
+      "clean": 77632,
+      "head_stripped": 52,
+      "tail_stripped": 61
+    },
+    "user-guide/profile-distributions": {
+      "raw": 54267,
+      "clean": 34315,
+      "head_stripped": 52,
+      "tail_stripped": 66
+    },
+    "user-guide/profiles": {
+      "raw": 38792,
+      "clean": 25503,
+      "head_stripped": 52,
+      "tail_stripped": 52
+    },
+    "user-guide/remote-config": {
+      "raw": 12782,
+      "clean": 6336,
+      "head_stripped": 52,
+      "tail_stripped": 28
+    },
+    "user-guide/secrets/bitwarden": {
+      "raw": 19288,
+      "clean": 10294,
+      "head_stripped": 56,
+      "tail_stripped": 36
+    },
+    "user-guide/secrets/command": {
+      "raw": 6561,
+      "clean": 3359,
+      "head_stripped": 10,
+      "tail_stripped": 28
+    },
+    "user-guide/secrets/onepassword": {
+      "raw": 20547,
+      "clean": 11224,
+      "head_stripped": 56,
+      "tail_stripped": 38
+    },
+    "user-guide/secrets": {
+      "raw": 12129,
+      "clean": 5104,
+      "head_stripped": 56,
+      "tail_stripped": 28
+    },
+    "user-guide/security": {
+      "raw": 88176,
+      "clean": 68051,
+      "head_stripped": 52,
+      "tail_stripped": 72
+    },
+    "user-guide/session-storage-recovery": {
+      "raw": 13773,
+      "clean": 6577,
+      "head_stripped": 52,
+      "tail_stripped": 29
+    },
+    "user-guide/sessions": {
+      "raw": 92144,
+      "clean": 70742,
+      "head_stripped": 52,
+      "tail_stripped": 76
+    },
+    "user-guide/skills/google-workspace": {
+      "raw": 11749,
+      "clean": 6117,
+      "head_stripped": 10,
+      "tail_stripped": 38
+    },
+    "user-guide/switching-to-source": {
+      "raw": 14366,
+      "clean": 6294,
+      "head_stripped": 52,
+      "tail_stripped": 32
+    },
+    "user-guide/tui": {
+      "raw": 35115,
+      "clean": 24615,
+      "head_stripped": 52,
+      "tail_stripped": 43
+    },
+    "user-guide/which-file-does-what": {
+      "raw": 14487,
+      "clean": 6554,
+      "head_stripped": 52,
+      "tail_stripped": 30
+    },
+    "user-guide/windows-native": {
+      "raw": 36301,
+      "clean": 24018,
+      "head_stripped": 52,
+      "tail_stripped": 48
+    },
+    "user-guide/windows-wsl-quickstart": {
+      "raw": 32769,
+      "clean": 19491,
+      "head_stripped": 52,
+      "tail_stripped": 45
+    },
+    "user-stories": {
+      "raw": 176063,
+      "clean": 173308,
+      "head_stripped": 26,
+      "tail_stripped": 22
+    }
+  }
+}

@@ -1,0 +1,723 @@
+---
+title: "Checkpoints & Rollback"
+source: https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback
+scraped_at: 2026-11-07T17:19:22.953931+00:00
+success: True
+status_code: 200
+---
+
+[Skip to main content](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#__docusaurus_skipToContent_fallback)
+[ ![Hermes Agent](https://hermes-agent.nousresearch.com/docs/img/logo.png)![Hermes Agent](https://hermes-agent.nousresearch.com/docs/img/logo-dark.png) **Hermes Agent**](https://hermes-agent.nousresearch.com/docs/)[Docs](https://hermes-agent.nousresearch.com/docs/user-stories)[Skills](https://hermes-agent.nousresearch.com/docs/skills)[Plugins](https://hermes-agent.nousresearch.com/docs/plugins)[Download](https://hermes-agent.nousresearch.com/)
+[](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback)
+  * [English](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback)
+  * [简体中文](https://hermes-agent.nousresearch.com/docs/zh-Hans/user-guide/checkpoints-and-rollback)
+
+
+[Home](https://hermes-agent.nousresearch.com)[GitHub](https://github.com/NousResearch/hermes-agent)[Discord](https://discord.gg/NousResearch)
+Search
+  * [User Stories & Use Cases](https://hermes-agent.nousresearch.com/docs/user-stories)
+  * [Browse Skills](https://hermes-agent.nousresearch.com/docs/skills)
+  * [Browse Plugins](https://hermes-agent.nousresearch.com/docs/plugins)
+  * [Getting Started](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart)
+  * [Using Hermes](https://hermes-agent.nousresearch.com/docs/user-guide/cli)
+    * [CLI Interface](https://hermes-agent.nousresearch.com/docs/user-guide/cli)
+    * [TUI](https://hermes-agent.nousresearch.com/docs/user-guide/tui)
+    * [Hermes Desktop](https://hermes-agent.nousresearch.com/docs/user-guide/desktop)
+    * [Bot Mode](https://hermes-agent.nousresearch.com/docs/user-guide/bot-mode)
+    * [Windows (Native)](https://hermes-agent.nousresearch.com/docs/user-guide/windows-native)
+    * [Windows (WSL2)](https://hermes-agent.nousresearch.com/docs/user-guide/windows-wsl-quickstart)
+    * [Switching to a Source Install](https://hermes-agent.nousresearch.com/docs/user-guide/switching-to-source)
+    * [Hermes Agent Configuration](https://hermes-agent.nousresearch.com/docs/user-guide/configuration)
+    * [Which File Does What?](https://hermes-agent.nousresearch.com/docs/user-guide/which-file-does-what)
+    * [Managed Scope](https://hermes-agent.nousresearch.com/docs/user-guide/managed-scope)
+    * [Remote Config](https://hermes-agent.nousresearch.com/docs/user-guide/remote-config)
+    * [Configuring Models](https://hermes-agent.nousresearch.com/docs/user-guide/configuring-models)
+    * [Secrets](https://hermes-agent.nousresearch.com/docs/user-guide/secrets/)
+    * [Egress proxy](https://hermes-agent.nousresearch.com/docs/user-guide/egress/)
+    * [Sessions](https://hermes-agent.nousresearch.com/docs/user-guide/sessions)
+    * [Session Storage Recovery](https://hermes-agent.nousresearch.com/docs/user-guide/session-storage-recovery)
+    * [Profiles: Running Multiple Agents](https://hermes-agent.nousresearch.com/docs/user-guide/profiles)
+    * [Profile Distributions: Share a Whole Agent](https://hermes-agent.nousresearch.com/docs/user-guide/profile-distributions)
+    * [Running Many Gateways at Once](https://hermes-agent.nousresearch.com/docs/user-guide/multi-profile-gateways)
+    * [Connecting Desktop to Many Hermes Instances](https://hermes-agent.nousresearch.com/docs/user-guide/multi-connection-desktop)
+    * [Git Worktrees](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees)
+    * [Hermes Docker Setup](https://hermes-agent.nousresearch.com/docs/user-guide/docker)
+    * [Security](https://hermes-agent.nousresearch.com/docs/user-guide/security)
+    * [Checkpoints & Rollback](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback)
+  * [Features](https://hermes-agent.nousresearch.com/docs/user-guide/features/overview)
+  * [Messaging Platforms](https://hermes-agent.nousresearch.com/docs/user-guide/messaging/)
+  * [Integrations](https://hermes-agent.nousresearch.com/docs/integrations/)
+  * [Guides & Tutorials](https://hermes-agent.nousresearch.com/docs/guides/run-nemotron-3-ultra-free)
+  * [Developer Guide](https://hermes-agent.nousresearch.com/docs/developer-guide/contributing)
+  * [Reference](https://hermes-agent.nousresearch.com/docs/reference/cli-commands)
+
+
+  * [](https://hermes-agent.nousresearch.com/docs/)
+  * Using Hermes
+  * Checkpoints & Rollback
+
+
+On this page
+# Checkpoints and `/rollback`
+Hermes Agent can automatically snapshot your project before **destructive operations** and restore it with a single command. Checkpoints are **opt-in** as of v2 — most users never use `/rollback`, and the shadow-store storage is non-trivial over time, so the default is off.
+Enable checkpoints per-session with `--checkpoints`:
+
+```
+
+
+hermes chat --checkpoints  
+
+
+
+```
+
+Or enable globally in `~/.hermes/config.yaml`:
+
+```
+
+
+checkpoints:  
+
+
+
+
+
+  enabled: true  
+
+
+
+```
+
+This safety net is powered by an internal **Checkpoint Manager** that keeps a single shared shadow git repository under `~/.hermes/checkpoints/store/` — your real project `.git` is never touched. Every project the agent works in shares the same store, so git's content-addressable object DB deduplicates across projects and across turns.
+## What Triggers a Checkpoint[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#what-triggers-a-checkpoint "Direct link to What Triggers a Checkpoint")
+Checkpoints are taken automatically before:
+  * **File tools** — `write_file` and `patch`
+  * **Destructive terminal commands** — `rm`, `rmdir`, `cp`, `install`, `mv`, `sed -i`, `truncate`, `dd`, `shred`, output redirects (`>`), and `git reset`/`clean`/`checkout`
+
+
+The agent creates **at most one checkpoint per directory per turn** , so long-running sessions don't spam snapshots.
+## Quick Reference[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#quick-reference "Direct link to Quick Reference")
+In-session slash commands:  
+| Command  | Description  |  
+| --- | --- |  
+| `/rollback`  | List all checkpoints with change stats  |  
+| `/rollback <N>`  | Restore to checkpoint N, keeping your hand-edits (also undoes last chat turn)  |  
+| `/rollback <N> --all`  | Full restore — overwrites your hand-edits too  |  
+| `/rollback diff <N>`  | Preview diff between checkpoint N and current state  |  
+| `/rollback <N> <file>`  | Restore a single file from checkpoint N  |  
+CLI for inspecting and managing the store outside a session:  
+| Command  | Description  |  
+| --- | --- |  
+| `hermes checkpoints`  | Show total size, project count, per-project breakdown  |  
+| `hermes checkpoints status`  | Same as bare `checkpoints`  |  
+| `hermes checkpoints list`  | Alias for `status`  |  
+| `hermes checkpoints prune`  | Force a sweep: delete orphans/stale, GC, enforce size cap  |  
+| `hermes checkpoints clear`  | Nuke the entire checkpoint base (asks first)  |  
+| `hermes checkpoints clear-legacy`  | Delete only the `legacy-*` archives from v1 migration  |  
+## How Checkpoints Work[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#how-checkpoints-work "Direct link to How Checkpoints Work")
+At a high level:
+  * Hermes detects when tools are about to **modify files** in your working tree.
+  * Once per conversation turn (per directory), it:
+    * Resolves a reasonable project root for the file.
+    * Initialises or reuses the **single shared shadow store** at `~/.hermes/checkpoints/store/`.
+    * Stages into a per-project index, builds a tree, and commits to a per-project ref (`refs/hermes/<project-hash>`).
+  * These per-project refs form a checkpoint history that you can inspect and restore via `/rollback`.
+
+
+## Configuration[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#configuration "Direct link to Configuration")
+Configure in `~/.hermes/config.yaml`:
+
+```
+
+
+checkpoints:  
+
+
+
+
+
+  enabled: false              # master switch (default: false — opt-in)  
+
+
+
+
+
+  max_snapshots: 20           # max checkpoints per project (enforced via ref rewrite + gc)  
+
+
+
+
+
+  max_total_size_mb: 500      # hard cap on total store size; oldest commits dropped  
+
+
+
+
+
+  max_file_size_mb: 10        # skip any single file larger than this  
+
+
+
+
+
+  
+
+
+
+
+
+  # Auto-maintenance (on by default): sweep ~/.hermes/checkpoints/ in the  
+
+
+
+
+
+  # background — the CLI on a helper thread right after launch, the gateway  
+
+
+
+
+
+  # on its housekeeping tick — and delete project entries whose last_touch is  
+
+
+
+
+
+  # older than retention_days. Runs at most once per min_interval_hours,  
+
+
+
+
+
+  # tracked via a .last_prune marker. It never blocks the prompt or gateway  
+
+
+
+
+
+  # startup: the `git gc` that reclaims space can take tens of seconds on a  
+
+
+
+
+
+  # large store. This sweep never deletes "orphan" entries (working directory  
+
+
+
+
+
+  # not found) — a missing workdir is ambiguous (deleted project vs. an  
+
+
+
+
+
+  # unmounted external volume / network share / VPN not yet up), so orphan  
+
+
+
+
+
+  # cleanup is only ever done via the explicit `hermes checkpoints prune`  
+
+
+
+
+
+  # command below, with a confirmation prompt.  
+
+
+
+
+
+  auto_prune: true  
+
+
+
+
+
+  retention_days: 7  
+
+
+
+
+
+  min_interval_hours: 24  
+
+
+
+```
+
+To disable everything:
+
+```
+
+
+checkpoints:  
+
+
+
+
+
+  enabled: false  
+
+
+
+
+
+  auto_prune: false  
+
+
+
+```
+
+When `enabled: false`, the Checkpoint Manager is a no-op and never attempts git operations. When `auto_prune: false`, the store grows until you run `hermes checkpoints prune` manually.
+## Listing Checkpoints[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#listing-checkpoints "Direct link to Listing Checkpoints")
+From a CLI session:
+
+```
+
+
+/rollback  
+
+
+
+```
+
+Hermes responds with a formatted list showing change statistics:
+
+```
+
+
+📸 Checkpoints for /path/to/project:  
+
+
+
+
+
+  
+
+
+
+
+
+  1. 4270a8c  2026-03-16 04:36  before patch  (1 file, +1/-0)  
+
+
+
+
+
+  2. eaf4c1f  2026-03-16 04:35  before write_file  
+
+
+
+
+
+  3. b3f9d2e  2026-03-16 04:34  before terminal: sed -i s/old/new/ config.py  (1 file, +1/-1)  
+
+
+
+
+
+  
+
+
+
+
+
+  /rollback <N>             restore to checkpoint N (keeps your hand-edits)  
+
+
+
+
+
+  /rollback <N> --all       full restore, overwriting your hand-edits too  
+
+
+
+
+
+  /rollback diff <N>        preview changes since checkpoint N  
+
+
+
+
+
+  /rollback <N> <file>      restore a single file from checkpoint N  
+
+
+
+```
+
+## Inspecting the Store from the Shell[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#inspecting-the-store-from-the-shell "Direct link to Inspecting the Store from the Shell")
+
+```
+
+
+hermes checkpoints  
+
+
+
+```
+
+Sample output:
+
+```
+
+
+Checkpoint base: /home/you/.hermes/checkpoints  
+
+
+
+
+
+Total size:      142.3 MB  
+
+
+
+
+
+  store/         138.1 MB  
+
+
+
+
+
+  legacy-*       4.2 MB  
+
+
+
+
+
+Projects:        12  
+
+
+
+
+
+  
+
+
+
+
+
+  WORKDIR                                                       COMMITS    LAST TOUCH  STATE  
+
+
+
+
+
+  /home/you/code/hermes-agent                                        20       2h ago  live  
+
+
+
+
+
+  /home/you/code/experiments/rl-runner                                8       1d ago  live  
+
+
+
+
+
+  /home/you/code/old-prototype                                        3       9d ago  orphan  
+
+
+
+
+
+  ...  
+
+
+
+
+
+  
+
+
+
+
+
+Legacy archives (1):  
+
+
+
+
+
+  legacy-20260506-050616                           4.2 MB  
+
+
+
+
+
+  
+
+
+
+
+
+Clear with: hermes checkpoints clear-legacy  
+
+
+
+```
+
+Force a full sweep (ignores the 24h idempotency marker):
+
+```
+
+
+hermes checkpoints prune --retention-days 3 --max-size-mb 200  
+
+
+
+```
+
+## Previewing Changes with `/rollback diff`[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#previewing-changes-with-rollback-diff "Direct link to previewing-changes-with-rollback-diff")
+Before committing to a restore, preview what has changed since a checkpoint:
+
+```
+
+
+/rollback diff 1  
+
+
+
+```
+
+This shows a git diff stat summary followed by the actual diff.
+## Restoring with `/rollback`[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#restoring-with-rollback "Direct link to restoring-with-rollback")
+
+```
+
+
+/rollback 1  
+
+
+
+```
+
+Behind the scenes, Hermes:
+  1. Verifies the target commit exists in the shadow store.
+  2. Takes a **pre-rollback snapshot** of the current state so you can "undo the undo" later.
+  3. Restores tracked files in your working directory — **preserving your hand-edits** (see below).
+  4. **Undoes the last conversation turn** so the agent's context matches the restored filesystem state.
+
+
+### User hand-edits are preserved by default[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#user-hand-edits-are-preserved-by-default "Direct link to User hand-edits are preserved by default")
+`/rollback <N>` restores only the files Hermes itself changed. Every successful `write_file` / `patch` records the file's content hash in an **agent-write ledger** ; at restore time, any file whose current contents no longer match what Hermes last wrote (you edited it afterwards, or Hermes never touched it) is **skipped** instead of overwritten, and listed in the output:
+
+```
+
+
+✅ Restored to checkpoint a1b2c3d4: before write_file  
+
+
+
+
+
+↷ Kept your hand-edits: src/config.py, notes.md  
+
+
+
+
+
+Use /rollback <N> --all to restore those too.  
+
+
+
+```
+
+To force the classic full restore that reverts everything — including your own edits — add `--all`:
+
+```
+
+
+/rollback 1 --all  
+
+
+
+```
+
+If the ledger is empty (a store created before this feature, or Hermes hasn't written any files in the project yet), `/rollback` falls back to the full restore automatically.
+##  `/undo` lists the files the undone turns changed[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#undo-lists-the-files-the-undone-turns-changed "Direct link to undo-lists-the-files-the-undone-turns-changed")
+`/undo` only rewinds the conversation; it never touches files. When checkpoints are on and the undone turns changed files in the project, `/undo` adds one line naming them and pointing at `/rollback`:
+
+```
+
+
+/undo  
+
+
+
+
+
+↶ Files changed in the undone turns: app.js, notes.md. Run /rollback to see checkpoints and restore them.  
+
+
+
+```
+
+The line names no checkpoint: run `/rollback` to see the list and pick the one to restore (by number or hash). The file list is best effort: it compares the project with the checkpoint taken around when the undone turns started, and it only says what changed, not what a restore will bring back. The line itself writes nothing, and with checkpoints off, or when no undone turn took a checkpoint, `/undo` prints exactly what it always did. The editor (ACP) and the gateway chat client do not run `/rollback`, so they print no line.
+A whole-tree `/rollback` also undoes the newest remaining chat turn (step 4 above), but only when that turn made the checkpoint or came after it. After `/undo`, the turns you kept ended before the checkpoint, so they stay. Each checkpoint records its exact time; for a checkpoint made by an older version, only the second is known, and a kept turn in that same second is kept too.
+## Single-File Restore[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#single-file-restore "Direct link to Single-File Restore")
+Restore just one file from a checkpoint without affecting the rest of the directory:
+
+```
+
+
+/rollback 1 src/broken_file.py  
+
+
+
+```
+
+## Safety and Performance Guards[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#safety-and-performance-guards "Direct link to Safety and Performance Guards")
+### Nested Git repositories[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#nested-git-repositories "Direct link to Nested Git repositories")
+A checkpoint of a parent directory can store a nested repository as a Git **gitlink** (a commit reference), not a copy of its files. Recursive capture of nested repositories is not supported: their uncommitted edits and untracked files are not recoverable from that parent checkpoint. Checkpoints taken by this version or later are labelled in `/rollback` listings, for example `before write_file: app.py [nested git repos not captured: tool]`.
+If the selected checkpoint contains gitlinks, a full rollback (including `--all`) is refused before changing files or creating a pre-rollback snapshot. Selecting a nested repository, a file below it, or a Git pathspec matching it also refuses the restore rather than reporting success for uncaptured files. You can still restore unrelated captured files, for example `/rollback 1 notes.txt`. Keep separate backups or checkpoints taken directly from the nested repository's own working directory.
+### Container Backends[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#container-backends "Direct link to Container Backends")
+With a container terminal backend (`docker`, `modal`, `daytona`, `vercel_sandbox`, or a container plugin such as `singularity`), file paths belong to the sandbox rather than the host. Hermes therefore does not take checkpoints or record the agent-write ledger for those paths, and `/rollback` explains the limitation: it still lists existing host checkpoints but refuses diff and restore, on the CLI and in messaging-gateway chats alike; `/diff session` answers with the same reason. The TUI and Desktop behave the same: `/rollback list` still works while `/rollback diff` and `/rollback <N>` are refused with that reason. Local and SSH backends are unaffected. To point `terminal.cwd` at the container-side view of a mounted directory see [`terminal.docker_mount_cwd_to_workspace`](https://hermes-agent.nousresearch.com/docs/user-guide/configuration).
+  * **Git availability** — if `git` is not found on `PATH`, checkpoints are transparently disabled.
+  * **Directory scope** — Hermes skips overly broad directories: root `/`, your home `$HOME`, and every directory that contains your home (such as `/home` or `/Users`). It also never snapshots its own checkpoint store, even when the project is `~/.hermes` itself.
+  * **Repository size** — directories with more than 50,000 files are skipped. Excluded directories (`node_modules/`, `.venv/`, `build/`, Hermes' own browser profiles and the rest of the exclude list) do not count, so a small project with a large `node_modules` is still checkpointed.
+  * **Per-file size cap** — files larger than `max_file_size_mb` (default 10 MB) are excluded from the snapshot. Prevents accidentally swallowing datasets, model weights, or generated media.
+  * **Total store size cap** — when the store exceeds `max_total_size_mb` (default 500 MB), the oldest commit per project is dropped round-robin. Each drop is reclaimed before deciding whether another is necessary. Every project keeps at least one snapshot. A failed Git operation stops pruning and is reported; maintenance never discards more history to compensate for failed reclamation.
+  * **Real pruning, off the hot path** — `max_snapshots` and the size cap are enforced by rewriting the per-project ref at checkpoint time (cheap); the store is then marked `.gc-pending` and the periodic prune runs `git gc --prune=now` once, so loose objects don't accumulate and a tool call never waits on a full repack.
+  * **Concurrent operations** — snapshots, restores, diffs and maintenance use one process-shared store lock. An operation reports a busy store rather than running GC over another process's unpublished objects. A restore applies its selected tree before pruning the safety snapshot's history.
+  * **No-change snapshots** — if there are no changes since the last snapshot, the checkpoint is skipped.
+  * **Non-fatal errors** — snapshot failures do not block your tools. Pruning failures are logged as warnings; explicit maintenance reports an error count.
+
+
+## Where Checkpoints Live[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#where-checkpoints-live "Direct link to Where Checkpoints Live")
+
+```
+
+
+~/.hermes/checkpoints/  
+
+
+
+
+
+  ├── store/                 # single shared bare git repo  
+
+
+
+
+
+  │   ├── HEAD, objects/     # git internals (shared across projects)  
+
+
+
+
+
+  │   ├── refs/hermes/<hash> # per-project branch tip  
+
+
+
+
+
+  │   ├── indexes/<hash>     # per-project git index  
+
+
+
+
+
+  │   ├── projects/<hash>.json  # workdir + created_at + last_touch  
+
+
+
+
+
+  │   ├── .gc-pending        # refs rewritten since the last gc; cleared by the next prune  
+
+
+
+
+
+  │   └── info/exclude  
+
+
+
+
+
+  ├── .last_prune            # auto-prune idempotency marker  
+
+
+
+
+
+  └── legacy-<ts>/           # archived pre-v2 per-project shadow repos  
+
+
+
+```
+
+Each `<hash>` is derived from the absolute path of the working directory. You normally never need to touch these manually — use `hermes checkpoints status` / `prune` / `clear` instead.
+The sibling `.checkpoints.lock` coordinates processes and survives a store clear. Do not remove it while Hermes is running.
+### Migration from v1[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#migration-from-v1 "Direct link to Migration from v1")
+Before the v2 rewrite, each working directory got its own complete shadow git repo directly under `~/.hermes/checkpoints/<hash>/`. That layout couldn't dedup objects across projects and had a documented no-op pruner — the store would grow without bound.
+On first v2 run, any pre-v2 shadow repos are moved into `~/.hermes/checkpoints/legacy-<timestamp>/` so the new single-store layout starts clean. Old `/rollback` history is still reachable by manually inspecting the legacy archive with `git`; once you're confident you don't need it, run:
+
+```
+
+
+hermes checkpoints clear-legacy  
+
+
+
+```
+
+to reclaim the space. Legacy archives are also swept by `auto_prune` after `retention_days`.
+## Best Practices[​](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#best-practices "Direct link to Best Practices")
+  * **Enable checkpoints only when you need them** — `hermes chat --checkpoints` or per-profile `enabled: true`.
+  * **Use`/rollback diff` before restoring** — preview what will change to pick the right checkpoint.
+  * **Use`/rollback` instead of `git reset`** when you want to undo agent-driven changes only.
+  * **Check`hermes checkpoints status` occasionally** if you use checkpoints regularly — shows which projects are active and what the store costs you.
+  * **Combine with Git worktrees** for maximum safety — keep each Hermes session in its own worktree/branch, with checkpoints as an extra layer.
+
+
+For running multiple agents in parallel on the same repo, see the guide on [Git worktrees](https://hermes-agent.nousresearch.com/docs/user-guide/git-worktrees).
+[](https://github.com/NousResearch/hermes-agent/edit/main/website/docs/user-guide/checkpoints-and-rollback.md)
+[Previous Security](https://hermes-agent.nousresearch.com/docs/user-guide/security)[Next Overview](https://hermes-agent.nousresearch.com/docs/user-guide/features/overview)
+  * [What Triggers a Checkpoint](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#what-triggers-a-checkpoint)
+  * [Quick Reference](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#quick-reference)
+  * [How Checkpoints Work](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#how-checkpoints-work)
+  * [Configuration](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#configuration)
+  * [Listing Checkpoints](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#listing-checkpoints)
+  * [Inspecting the Store from the Shell](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#inspecting-the-store-from-the-shell)
+  * [Previewing Changes with `/rollback diff`](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#previewing-changes-with-rollback-diff)
+  * [Restoring with `/rollback`](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#restoring-with-rollback)
+    * [User hand-edits are preserved by default](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#user-hand-edits-are-preserved-by-default)
+  * [`/undo` lists the files the undone turns changed](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#undo-lists-the-files-the-undone-turns-changed)
+  * [Single-File Restore](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#single-file-restore)
+  * [Safety and Performance Guards](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#safety-and-performance-guards)
+    * [Nested Git repositories](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#nested-git-repositories)
+    * [Container Backends](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#container-backends)
+  * [Where Checkpoints Live](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#where-checkpoints-live)
+    * [Migration from v1](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#migration-from-v1)
+  * [Best Practices](https://hermes-agent.nousresearch.com/docs/user-guide/checkpoints-and-rollback#best-practices)
+
+
+Docs
+  * [Getting Started](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart)
+  * [User Guide](https://hermes-agent.nousresearch.com/docs/user-guide/cli)
+  * [Developer Guide](https://hermes-agent.nousresearch.com/docs/developer-guide/architecture)
+  * [Reference](https://hermes-agent.nousresearch.com/docs/reference/cli-commands)
+
+
+Community
+  * [Discord](https://discord.gg/NousResearch)
+  * [GitHub Issues](https://github.com/NousResearch/hermes-agent/issues)
+  * [Skills Hub](https://agentskills.io)
+
+
+More
+  * [Desktop Download](https://hermes-agent.nousresearch.com/)
+  * [GitHub](https://github.com/NousResearch/hermes-agent)
+  * [Nous Research](https://nousresearch.com)
+
+
+Built by [Nous Research](https://nousresearch.com) · MIT License · 2026

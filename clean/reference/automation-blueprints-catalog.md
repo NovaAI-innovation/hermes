@@ -1,0 +1,22 @@
+---
+title: "Automation Blueprints Catalog"
+source: "https://hermes-agent.nousresearch.com/docs/reference/automation-blueprints-catalog"
+scraped_at: "2026-11-07T17:20:37.817525+00:00"
+doc_id: "reference/automation-blueprints-catalog"
+content_hash: "9961d6921e5fc69c"
+---
+
+# Automation Blueprints
+Automation Blueprints are ready-to-run automations. Pick one, fill in a couple of fields, and Hermes schedules it as a cron job — no cron syntax required.
+Every blueprint works from **every surface** :
+  * **Dashboard / desktop app** — open the Cron page, switch to the **Blueprints** tab, fill the form, and click _Schedule it_.
+  * **CLI, TUI, and messengers** — type `/blueprint <name>` (e.g. `/blueprint morning-brief`) and Hermes asks you for what it needs, one question at a time, then schedules it. The name match is forgiving — a prefix or near-spelling resolves. Power users can skip the questions by passing values inline: `/blueprint morning-brief time=08:00`.
+  * **Desktop app** — click **Send to App** on any blueprint and it opens with the command pre-loaded in your composer.
+
+Blueprints never schedule anything silently — you always confirm before the job is created. Manage created jobs anytime with `/cron`.
+Loading blueprints…
+## Blueprints from plugins
+Plugins can add their own blueprints. They show up in the same catalog as the built-ins: in `/blueprint`, the dashboard's Blueprints tab, and the desktop Cron page, labelled with the plugin's name. Their keys are prefixed with the plugin name (`/blueprint teamtools:standup`), so a plugin can never replace a built-in. Plugins load per profile, so a plugin blueprint is listed only in profiles where that plugin is enabled.
+A job you create from a plugin blueprint is an ordinary cron job. Disabling the plugin removes the blueprint from the catalog, but jobs you already created keep running.
+## Writing your own
+A blueprint is just a skill with a `metadata.hermes.blueprint` block in its `SKILL.md` frontmatter. See [Creating Skills → Automation Blueprints](/docs/developer-guide/creating-skills) for the slot schema and how to publish one. Plugin authors can register one directly with `ctx.register_automation_blueprint()`; see [Build a Plugin → Add Automation Blueprints](/docs/developer-guide/plugins#add-automation-blueprints).
