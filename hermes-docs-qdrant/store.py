@@ -107,9 +107,18 @@ class QueryEmbedder:
         if self._client is None:
             from openai import OpenAI
 
-            self._client = OpenAI(
-                base_url=self.base, api_key=os.environ["OPENROUTER_API_KEY"]
-            )
+            key = os.getenv("OPENROUTER_API_KEY")
+            if not key:
+                # A bare KeyError here reached the agent as "KeyError:
+                # 'OPENROUTER_API_KEY'" with no hint about which credential or
+                # how to set it. Name the fix instead.
+                raise RuntimeError(
+                    "OPENROUTER_API_KEY is not set, so queries cannot be "
+                    "embedded. Add it to $HERMES_HOME/.env (or the plugin's "
+                    "environment) and restart the gateway. "
+                    "Call docs_diagnostics to confirm."
+                )
+            self._client = OpenAI(base_url=self.base, api_key=key)
         return self._client
 
     def embed_query(self, text: str) -> list[float]:
@@ -169,12 +178,17 @@ class DocsStore:
             from qdrant_client import QdrantClient
             from qdrant_client.http import models as qm
 
-            self._client = QdrantClient(
-                url=self.settings.url,
-                api_key=self.settings.api_key,
-                path=self.settings.path,
-                timeout=10,
-            )
+            # Local (embedded) mode passes path; server mode passes url.
+            # Passing both makes qdrant-client prefer the remote and silently
+            # ignore the embedded store, so the kwargs are exclusive here.
+            if self.settings.url:
+                self._client = QdrantClient(
+                    url=self.settings.url,
+                    api_key=self.settings.api_key,
+                    timeout=10,
+                )
+            else:
+                self._client = QdrantClient(path=self.settings.path, timeout=10)
             self._qm = qm
         return self._client
 
@@ -185,6 +199,22 @@ class DocsStore:
             return True, f"{info.points_count or 0} points"
         except Exception as exc:  # noqa: BLE001 - surface to the model, never raise
             return False, f"{exc.__class__.__name__}: {str(exc)[:200]}"
+
+    def diagnosis(self) -> dict[str, Any]:
+        """Full diagnostic snapshot; used by docs_diagnostics and cli.py doctor."""
+        from . import compat
+
+        env = compat.check_environment()
+        ok, detail = self.health()
+        return {
+            "dependencies": env,
+            "collection": self.settings.collection,
+            "reachable": ok,
+            "detail": detail,
+            "target": self.settings.url or self.settings.path,
+            "local_mode": not bool(self.settings.url),
+        }
+
 
     def ensure_collection(self, recreate: bool = False) -> None:
         from qdrant_client.http import models as qm

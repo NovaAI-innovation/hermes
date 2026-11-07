@@ -211,6 +211,62 @@ def docs_stats(args: dict, **kwargs) -> str:
         return _error(f"{exc.__class__.__name__}: {exc}")
 
 
+# --------------------------------------------------------------- diagnostics
+
+
+def docs_diagnostics(args: dict | None = None, **kwargs) -> str:
+    """Report why the tools are or are not available.
+
+    Callable unconditionally (no check_fn): the states that need this are
+    precisely the ones where every other tool is hidden.
+    """
+    try:
+        from . import compat, environment
+
+        env = environment()
+        store = _store_or_error()
+        payload = {
+            "ok": True,
+            "version": _version(),
+            "enabled": bool(env.get("ok")),
+            "dependencies": env,
+            "python": env.get("python"),
+            "executable": env.get("executable"),
+            "toolset": "hermes_docs",
+            "tools": [
+                "docs_search",
+                "docs_search_many",
+                "docs_read",
+                "docs_outline",
+                "docs_list",
+                "docs_stats",
+                "docs_diagnostics",
+                "docs_rebuild",
+            ],
+        }
+        if store is not None:
+            healthy, detail = store.health()
+            payload["collection"] = store.settings.collection
+            payload["reachable"] = healthy
+            payload["detail"] = detail
+            payload["target"] = store.settings.url or store.settings.path
+        if not env.get("ok"):
+            payload["next_step"] = env.get("remediation")
+        return _ok(**payload)
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("docs_diagnostics failed")
+        return _error(f"{exc.__class__.__name__}: {exc}")
+
+
+def _version() -> str:
+    try:
+        from . import __version__
+
+        return __version__
+    except Exception:  # noqa: BLE001
+        return "unknown"
+
+
 # ------------------------------------------------------------------ rebuild
 
 

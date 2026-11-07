@@ -202,4 +202,18 @@ REBUILD = {
     },
 }
 
-ALL = [SEARCH, SEARCH_MANY, READ, OUTLINE, LIST_DOCS, STATS, REBUILD]
+DIAGNOSTICS = {
+    "type": "function",
+    "function": {
+        "name": "docs_diagnostics",
+        "description": (
+            "Report plugin health when documentation tools appear missing or "
+            "fail: dependency versions, which requirements are unmet, the "
+            "collection target, and whether it is reachable. Call this first "
+            "when docs_search is unavailable in a session."
+        ),
+        "parameters": {"type": "object", "properties": {}, "required": []},
+    },
+}
+
+ALL = [SEARCH, SEARCH_MANY, READ, OUTLINE, LIST_DOCS, STATS, DIAGNOSTICS, REBUILD]

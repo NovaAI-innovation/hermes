@@ -1,0 +1,12 @@
+# Resolver constraints shared by the runtime and build dependency sets.
+#
+# The plugin's hard floor is qdrant-client>=1.10.0: store.py calls
+# query_points, Prefetch and FusionQuery, which do not exist before 1.10.0.
+# This file exists so a *transitive* resolution cannot walk the client back
+# below what the plugin.yaml range already states.
+
+qdrant-client>=1.10.0,<2.0
+
+# Hermes core pins this on Python >= 3.14. Declaring it here keeps a build-env
+# install from dragging in a version the host will reject.
+snowballstemmer>=3.1.1

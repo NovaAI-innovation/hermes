@@ -1,0 +1,23 @@
+# Runtime dependencies ONLY — installed into the Hermes environment.
+#
+# These bounds are mirrored in plugin.yaml and compat.py. test_contract.py
+# asserts the three agree, so a change here must be repeated there.
+#
+# Install and repair:
+#   python -m pip install -r requirements-runtime.txt
+#   hermes gateway restart        # a running process never switches envs
+#
+# Do NOT add crawl4ai here. It pins snowballstemmer<3 and makes the plugin
+# unsatisfiable against Hermes core on Python >= 3.14. That toolchain belongs
+# in requirements-build.txt and a separate build environment.
+#
+# qdrant-client floor is 1.10.0 because store.py drives query_points(),
+# qm.Prefetch and qm.FusionQuery. Nothing below 1.10.0 can serve retrieval.
+
+-c hermes-docs-qdrant/constraints.txt
+
+qdrant-client>=1.10.0,<2.0
+fastembed>=0.4.0
+openai>=1.40.0
+httpx>=0.27.0
+PyYAML>=6.0

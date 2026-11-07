@@ -1,21 +1,19 @@
-# Corpus toolchain (build step only -- NOT installed by Hermes).
+# Runtime dependencies for the hermes-docs-qdrant plugin.
 #
-# plugin.yaml declares only the runtime dependencies, because crawl4ai pins
-# snowballstemmer<3 and Hermes core needs snowballstemmer==3.1.1 on Python 3.14.
-# Install this file in your own build env, build the corpus with cli.py, then
-# let Hermes install the plugin with the small runtime set.
+# This is the file to install, and it is safe to install into the Hermes
+# environment: it contains nothing that conflicts with Hermes core.
 #
-# NOTE: faiss-cpu / rank-bm25 are NOT listed. They belong to the FAISS reference
-# implementation described in POST_SCRAPE_PIPELINE.md; production is Qdrant.
+#   python -m pip install -r requirements.txt
+#   hermes gateway restart          # a running process never switches envs
+#
+# The corpus build toolchain (crawl4ai, tiktoken, sentence-transformers) lives
+# in requirements-build.txt and must go in a SEPARATE environment. crawl4ai
+# pins snowballstemmer<3, which is unsatisfiable against Hermes core's
+# snowballstemmer==3.1.1 on Python >= 3.14 — adding it here is what previously
+# left the plugin's dependencies unresolved and its tools silently hidden.
+#
+# NOTE: faiss-cpu / rank-bm25 are NOT listed. They belong to the FAISS
+# reference implementation described in POST_SCRAPE_PIPELINE.md; production is
+# Qdrant.
 
-crawl4ai>=0.8.6
-tiktoken>=0.7.0
-python-dotenv>=1.0.0
-sentence-transformers>=3.0.0
-
-# Runtime set, mirrored from plugin.yaml
-qdrant-client>=1.9.0
-fastembed>=0.4.0
-openai>=1.40.0
-httpx>=0.27.0
-PyYAML>=6.0
+-r requirements-runtime.txt

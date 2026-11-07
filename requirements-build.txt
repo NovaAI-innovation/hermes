@@ -1,0 +1,21 @@
+# Build-time toolchain — NOT installed by Hermes.
+#
+# Use this in a separate environment to scrape/normalize/chunk the corpus:
+#   python -m venv .venv-build
+#   .venv-build/Scripts/python -m pip install -r requirements-build.txt
+#   .venv-build/Scripts/python hermes-docs-qdrant/cli.py fetch --recreate
+#
+# The runtime tools then read the finished store from the plugin data home, so
+# Hermes never has to resolve crawl4ai (which pins snowballstemmer<3 and is
+# unsatisfiable against Hermes core on Python >= 3.14).
+#
+# NOTE: faiss-cpu / rank-bm25 are intentionally absent — they belong to the
+# FAISS reference implementation in POST_SCRAPE_PIPELINE.md. Production is
+# Qdrant.
+
+-r requirements-runtime.txt
+
+crawl4ai>=0.8.6
+tiktoken>=0.7.0
+python-dotenv>=1.0.0
+sentence-transformers>=3.0.0

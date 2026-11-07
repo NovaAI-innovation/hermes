@@ -8,6 +8,7 @@
     python cli.py index [--recreate]   # chunks.jsonl -> Qdrant
     python cli.py fetch                # scrape + build + index (first install)
     python cli.py status               # where data lives + what is present
+    python cli.py doctor               # verify dependency contract + collection
     python cli.py search "query"       # smoke-test retrieval
 
 Every path resolves through `pipeline/paths.py`, so the same commands work from
@@ -148,6 +149,51 @@ def cmd_status(_args) -> int:
     return 0
 
 
+def cmd_doctor(_args) -> int:
+    """Verify the runtime dependency contract and the collection."""
+    import json
+
+    from compat import check_environment, summary
+
+    env = check_environment()
+    print(f"python     : {env['python']} ({env['executable']})")
+    print(f"dependencies: {summary(env)}")
+    for module, info in env["modules"].items():
+        mark = "ok " if info["ok"] else "FAIL"
+        tier = "hard" if info["hard"] else "soft"
+        print(
+            f"  [{mark}] {module:14} installed={info['installed']} "
+            f">= {info['required']} ({tier})"
+        )
+        if info.get("error"):
+            print(f"          {info['error']}")
+    if env["warnings"]:
+        print("degraded (tools stay available):")
+        for warning in env["warnings"]:
+            print(f"  - {warning}")
+
+    try:
+        from store import DocsStore, Settings
+
+        store = DocsStore(Settings.resolve())
+        ok, detail = store.health()
+        print(f"collection : {'OK' if ok else 'FAIL'} {store.settings.collection} {detail}")
+        print(f"target     : {store.settings.url or store.settings.path}")
+    except Exception as exc:  # noqa: BLE001
+        print(f"collection : unreachable ({exc.__class__.__name__}: {exc})")
+        ok = False
+
+    if not env["ok"]:
+        print(f"\nfix: {env['remediation']}")
+        print("then restart so the running process picks up the new environment")
+        return 1
+    if not ok:
+        print("\nfix: python cli.py fetch --recreate   (build the corpus)")
+        return 1
+    print("\ndoctor: healthy")
+    return 0
+
+
 def cmd_search(args) -> int:
     from ingest import load_dotenv
 
@@ -178,6 +224,9 @@ def main() -> int:
     sub.add_parser("sources", help="list registered sources").set_defaults(func=cmd_sources)
     sub.add_parser("build", help="normalize -> enrich -> chunk").set_defaults(func=cmd_build)
     sub.add_parser("status", help="data home + corpus + collection state").set_defaults(func=cmd_status)
+    sub.add_parser(
+        "doctor", help="verify dependency contract and collection health"
+    ).set_defaults(func=cmd_doctor)
 
     p_scrape = sub.add_parser("scrape", help="download every llms.txt source")
     p_scrape.add_argument("--source", action="append")
