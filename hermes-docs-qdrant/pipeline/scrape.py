@@ -135,8 +135,7 @@ async def scrape_source(
     batch_size: int,
     skip_existing: bool,
 ) -> dict:
-    from crawl4ai import AsyncWebCrawler, CacheMode, CrawlerRunConfig
-    from crawl4ai.async_dispatcher import SemaphoreDispatcher
+    (crawl4ai is imported lazily below; it is scrape-time only)
 
     url_to_link = {link.url: link for link in links}
     urls = [link.url for link in links]
@@ -182,6 +181,21 @@ async def scrape_source(
 
     if not crawl_urls:
         return stats
+
+    # crawl4ai is scrape-time only and is intentionally NOT a plugin
+    # dependency: it pins snowballstemmer<3, which conflicts with Hermes core's
+    # snowballstemmer==3.1.1 on Python >= 3.14. Without it, raw-markdown
+    # sources still work; only HTML crawling needs it.
+    try:
+        from crawl4ai import AsyncWebCrawler, CacheMode, CrawlerRunConfig
+        from crawl4ai.async_dispatcher import SemaphoreDispatcher
+    except ImportError as exc:  # noqa: BLE001
+        raise RuntimeError(
+            f"{len(crawl_urls)} URL(s) need HTML crawling but crawl4ai is not "
+            "installed.\n"
+            "  pip install 'crawl4ai>=0.8.6'  (use a build env: it conflicts "
+            "with Hermes core on Python 3.14)"
+        ) from exc
 
     config = CrawlerRunConfig(cache_mode=CacheMode.BYPASS, stream=False)
     dispatcher = SemaphoreDispatcher(semaphore_count=concurrency)

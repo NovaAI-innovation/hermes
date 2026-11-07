@@ -34,6 +34,27 @@ Layout under that home:
 The packaged `default_sources.yaml` is copied to the home on first use and never
 overwritten, so upgrades keep your edits.
 
+## Two dependency sets
+
+The plugin ships with **runtime-only** dependencies (`plugin.yaml`): `qdrant-client`, `fastembed`, `openai`, `httpx`, `pyyaml`. It deliberately does **not** depend on the corpus toolchain.
+
+`crawl4ai` pins `snowballstemmer<3`, and Hermes core requires
+`snowballstemmer==3.1.1` on Python 3.14 — declaring it made `hermes plugins
+enable` refuse the plugin as unsatisfiable. Since `crawl4ai` is only needed to
+*crawl HTML pages*, it lives in the build step instead:
+
+```powershell
+# Build env (yours, not Hermes's) — full toolchain
+pip install -r requirements.txt
+
+# Hermes env — runtime only, resolved from plugin.yaml
+hermes plugins install ./hermes-docs-qdrant
+```
+
+`cli.py scrape` imports `crawl4ai` lazily and raises a clear message naming the
+missing package if HTML sources are queued without it. Raw-markdown `llms.txt`
+sources need only `httpx` and work either way.
+
 ## Install
 
 ```powershell

@@ -1,16 +1,18 @@
 name: hermes-docs-qdrant
 
-version: 2.0.0
+version: 2.0.1
 
 description: >-
 
-  Self-contained documentation corpus plugin. Scrapes any set of llms.txt
+  Self-contained documentation corpus plugin. Serves hybrid retrieval over any
 
-  sources, normalizes and chunks them, embeds with qwen/qwen3-embedding-4b into
+  set of llms.txt docs, embedded with qwen/qwen3-embedding-4b into Qdrant, as
 
-  Qdrant, and exposes hybrid retrieval as agent tools. All generated data lives
+  agent tools. Corpus building is done ahead of time via cli.py; only the
 
-  in the plugin data home, not the install tree.
+  runtime tools are installed as dependencies. All generated data lives in the
+
+  plugin data home, not the install tree.
 
 author: local
 
@@ -26,10 +28,16 @@ requires_env:
 
   - name: OPENROUTER_API_KEY
 
-    description: Used to embed documents and queries with qwen/qwen3-embedding-4b
+    description: Used to embed queries with qwen/qwen3-embedding-4b
 
     url: https://openrouter.ai/keys
 
+# Runtime dependencies only. Deliberately excludes the corpus toolchain
+# (crawl4ai, tiktoken, python-dotenv): crawl4ai pins snowballstemmer<3, which
+# conflicts with Hermes core's snowballstemmer==3.1.1 on Python >= 3.14.
+# Build the corpus in a separate env with `pip install -r requirements.txt`;
+# the tools then read the finished store. pyyaml stays because fastembed pulls
+# huggingface_hub, which needs it at import time.
 python_dependencies:
 
   - qdrant-client>=1.9.0
@@ -41,7 +49,3 @@ python_dependencies:
   - httpx>=0.27.0
 
   - pyyaml>=6.0
-
-  - tiktoken>=0.7.0
-
-  - crawl4ai>=0.7.0

@@ -5,6 +5,9 @@
 __pycache__/
 *.py[cod]
 
+# Archives (a 137 MB plugin zip once blocked the push; never commit these)
+*.zip
+
 # Generated corpus / vector data (lives in the plugin data home)
 hermes-docs-qdrant/.data/
 hermes-docs-qdrant/.data-offline/
