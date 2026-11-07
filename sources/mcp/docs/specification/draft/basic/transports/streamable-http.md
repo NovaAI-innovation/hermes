@@ -1,7 +1,7 @@
 ---
 title: "Streamable HTTP"
 source: https://modelcontextprotocol.io/specification/draft/basic/transports/streamable-http.md
-scraped_at: 2026-11-07T19:29:43.461426+00:00
+scraped_at: 2026-11-07T19:33:59.440016+00:00
 success: True
 raw_markdown: True
 ---

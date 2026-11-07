@@ -1,7 +1,7 @@
 ---
 title: "mcpdo connection client"
 source: https://modelcontextprotocol.io/docs/draft/tools/inspector/mcpdo.md
-scraped_at: 2026-11-07T19:28:46.989691+00:00
+scraped_at: 2026-11-07T19:33:37.815037+00:00
 success: True
 raw_markdown: True
 ---

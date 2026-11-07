@@ -1,7 +1,7 @@
 ---
 title: "Build an MCP server"
 source: https://modelcontextprotocol.io/docs/draft/develop/build-server.md
-scraped_at: 2026-11-07T19:28:42.314612+00:00
+scraped_at: 2026-11-07T19:33:33.178242+00:00
 success: True
 raw_markdown: True
 ---

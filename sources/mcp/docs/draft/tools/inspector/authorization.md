@@ -1,7 +1,7 @@
 ---
 title: "Authorization"
 source: https://modelcontextprotocol.io/docs/draft/tools/inspector/authorization.md
-scraped_at: 2026-11-07T19:28:47.846866+00:00
+scraped_at: 2026-11-07T19:33:38.604120+00:00
 success: True
 raw_markdown: True
 ---

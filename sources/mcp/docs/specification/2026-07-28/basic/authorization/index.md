@@ -1,7 +1,7 @@
 ---
 title: "Authorization"
 source: https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/index.md
-scraped_at: 2026-11-07T19:28:55.826734+00:00
+scraped_at: 2026-11-07T19:33:46.698809+00:00
 success: True
 raw_markdown: True
 ---

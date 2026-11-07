@@ -1,7 +1,7 @@
 ---
 title: "Schema Reference"
 source: https://modelcontextprotocol.io/specification/2026-07-28/schema.md
-scraped_at: 2026-11-07T19:29:03.033688+00:00
+scraped_at: 2026-11-07T19:33:53.372246+00:00
 success: True
 raw_markdown: True
 ---

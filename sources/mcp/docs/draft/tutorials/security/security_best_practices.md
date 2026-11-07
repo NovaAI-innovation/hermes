@@ -1,7 +1,7 @@
 ---
 title: "Security Best Practices"
 source: https://modelcontextprotocol.io/docs/draft/tutorials/security/security_best_practices.md
-scraped_at: 2026-11-07T19:28:44.443372+00:00
+scraped_at: 2026-11-07T19:33:35.357038+00:00
 success: True
 raw_markdown: True
 ---

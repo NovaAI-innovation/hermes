@@ -1,7 +1,7 @@
 ---
 title: "Security"
 source: https://modelcontextprotocol.io/docs/draft/tools/inspector/security.md
-scraped_at: 2026-11-07T19:28:49.072620+00:00
+scraped_at: 2026-11-07T19:33:39.926007+00:00
 success: True
 raw_markdown: True
 ---

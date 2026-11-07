@@ -1,7 +1,7 @@
 ---
 title: "Web client"
 source: https://modelcontextprotocol.io/docs/draft/tools/inspector/web.md
-scraped_at: 2026-11-07T19:28:45.652574+00:00
+scraped_at: 2026-11-07T19:33:36.636242+00:00
 success: True
 raw_markdown: True
 ---

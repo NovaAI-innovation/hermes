@@ -1,7 +1,7 @@
 ---
 title: "OAuth Client Credentials"
 source: https://modelcontextprotocol.io/extensions/auth/oauth-client-credentials.md
-scraped_at: 2026-11-07T19:29:53.891029+00:00
+scraped_at: 2026-11-07T19:34:09.110145+00:00
 success: True
 raw_markdown: True
 ---

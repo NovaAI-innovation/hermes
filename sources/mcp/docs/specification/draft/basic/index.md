@@ -1,7 +1,7 @@
 ---
 title: "Overview"
 source: https://modelcontextprotocol.io/specification/draft/basic/index.md
-scraped_at: 2026-11-07T19:29:39.775187+00:00
+scraped_at: 2026-11-07T19:33:55.569285+00:00
 success: True
 raw_markdown: True
 ---

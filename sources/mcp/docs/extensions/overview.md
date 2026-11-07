@@ -1,7 +1,7 @@
 ---
 title: "Extensions Overview"
 source: https://modelcontextprotocol.io/extensions/overview.md
-scraped_at: 2026-11-07T19:29:51.502770+00:00
+scraped_at: 2026-11-07T19:34:07.041321+00:00
 success: True
 raw_markdown: True
 ---

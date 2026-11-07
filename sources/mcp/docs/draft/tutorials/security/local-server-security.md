@@ -1,7 +1,7 @@
 ---
 title: "Local Server Security"
 source: https://modelcontextprotocol.io/docs/draft/tutorials/security/local-server-security.md
-scraped_at: 2026-11-07T19:28:44.853508+00:00
+scraped_at: 2026-11-07T19:33:35.740084+00:00
 success: True
 raw_markdown: True
 ---

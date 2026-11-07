@@ -1,7 +1,7 @@
 ---
 title: "Debugging"
 source: https://modelcontextprotocol.io/docs/2026-07-28/tools/debugging.md
-scraped_at: 2026-11-07T19:28:10.315520+00:00
+scraped_at: 2026-11-07T19:33:29.126284+00:00
 success: True
 raw_markdown: True
 ---

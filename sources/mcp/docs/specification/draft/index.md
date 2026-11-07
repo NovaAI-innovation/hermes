@@ -1,7 +1,7 @@
 ---
 title: "Specification"
 source: https://modelcontextprotocol.io/specification/draft/index.md
-scraped_at: 2026-11-07T19:29:38.151925+00:00
+scraped_at: 2026-11-07T19:33:53.807483+00:00
 success: True
 raw_markdown: True
 ---

@@ -1,7 +1,7 @@
 ---
 title: "stdio"
 source: https://modelcontextprotocol.io/specification/draft/basic/transports/stdio.md
-scraped_at: 2026-11-07T19:29:43.055463+00:00
+scraped_at: 2026-11-07T19:33:59.005930+00:00
 success: True
 raw_markdown: True
 ---

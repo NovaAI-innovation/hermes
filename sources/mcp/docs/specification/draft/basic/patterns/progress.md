@@ -1,7 +1,7 @@
 ---
 title: "Progress"
 source: https://modelcontextprotocol.io/specification/draft/basic/patterns/progress.md
-scraped_at: 2026-11-07T19:29:42.234538+00:00
+scraped_at: 2026-11-07T19:33:58.140430+00:00
 success: True
 raw_markdown: True
 ---

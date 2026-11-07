@@ -1,7 +1,7 @@
 ---
 title: "Roots"
 source: https://modelcontextprotocol.io/specification/draft/client/roots.md
-scraped_at: 2026-11-07T19:29:45.664244+00:00
+scraped_at: 2026-11-07T19:34:01.560328+00:00
 success: True
 raw_markdown: True
 ---

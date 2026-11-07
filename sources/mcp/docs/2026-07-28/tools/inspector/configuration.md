@@ -1,7 +1,7 @@
 ---
 title: "Configuration and flags"
 source: https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/configuration.md
-scraped_at: 2026-11-07T19:28:07.931623+00:00
+scraped_at: 2026-11-07T19:33:27.040066+00:00
 success: True
 raw_markdown: True
 ---

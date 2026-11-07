@@ -1,7 +1,7 @@
 ---
 title: "Build an MCP App"
 source: https://modelcontextprotocol.io/extensions/apps/build.md
-scraped_at: 2026-11-07T19:29:52.754747+00:00
+scraped_at: 2026-11-07T19:34:08.273092+00:00
 success: True
 raw_markdown: True
 ---

@@ -1,7 +1,7 @@
 ---
 title: "Multi Round-Trip Requests"
 source: https://modelcontextprotocol.io/specification/draft/basic/patterns/mrtr.md
-scraped_at: 2026-11-07T19:29:41.005557+00:00
+scraped_at: 2026-11-07T19:33:56.823401+00:00
 success: True
 raw_markdown: True
 ---

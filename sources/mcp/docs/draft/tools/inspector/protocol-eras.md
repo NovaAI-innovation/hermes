@@ -1,7 +1,7 @@
 ---
 title: "Protocol eras"
 source: https://modelcontextprotocol.io/docs/draft/tools/inspector/protocol-eras.md
-scraped_at: 2026-11-07T19:28:48.233020+00:00
+scraped_at: 2026-11-07T19:33:39.002700+00:00
 success: True
 raw_markdown: True
 ---

@@ -1,7 +1,7 @@
 ---
 title: "Connect to remote MCP Servers"
 source: https://modelcontextprotocol.io/docs/2026-07-28/develop/connect-remote-servers.md
-scraped_at: 2026-11-07T19:28:01.743861+00:00
+scraped_at: 2026-11-07T19:33:21.129299+00:00
 success: True
 raw_markdown: True
 ---

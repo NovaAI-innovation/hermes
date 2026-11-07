@@ -1,7 +1,7 @@
 ---
 title: "Overview"
 source: https://modelcontextprotocol.io/specification/draft/basic/transports/index.md
-scraped_at: 2026-11-07T19:29:42.645409+00:00
+scraped_at: 2026-11-07T19:33:58.565499+00:00
 success: True
 raw_markdown: True
 ---

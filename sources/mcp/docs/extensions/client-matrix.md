@@ -1,7 +1,7 @@
 ---
 title: "Extension Support Matrix"
 source: https://modelcontextprotocol.io/extensions/client-matrix.md
-scraped_at: 2026-11-07T19:29:51.906229+00:00
+scraped_at: 2026-11-07T19:34:07.498978+00:00
 success: True
 raw_markdown: True
 ---

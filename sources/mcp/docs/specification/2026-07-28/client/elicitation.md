@@ -1,7 +1,7 @@
 ---
 title: "Elicitation"
 source: https://modelcontextprotocol.io/specification/2026-07-28/client/elicitation.md
-scraped_at: 2026-11-07T19:28:58.606600+00:00
+scraped_at: 2026-11-07T19:33:49.130299+00:00
 success: True
 raw_markdown: True
 ---

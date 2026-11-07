@@ -1,7 +1,7 @@
 ---
 title: "MCP Apps"
 source: https://modelcontextprotocol.io/extensions/apps/overview.md
-scraped_at: 2026-11-07T19:29:52.304269+00:00
+scraped_at: 2026-11-07T19:34:07.889990+00:00
 success: True
 raw_markdown: True
 ---

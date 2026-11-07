@@ -1,7 +1,7 @@
 ---
 title: "Authorization Security Considerations"
 source: https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/security-considerations.md
-scraped_at: 2026-11-07T19:28:57.160116+00:00
+scraped_at: 2026-11-07T19:33:47.922408+00:00
 success: True
 raw_markdown: True
 ---

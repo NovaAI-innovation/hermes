@@ -1,7 +1,7 @@
 ---
 title: "Skills"
 source: https://modelcontextprotocol.io/extensions/skills/overview.md
-scraped_at: 2026-11-07T19:29:55.801122+00:00
+scraped_at: 2026-11-07T19:34:10.300164+00:00
 success: True
 raw_markdown: True
 ---

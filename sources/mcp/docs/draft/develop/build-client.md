@@ -1,7 +1,7 @@
 ---
 title: "Build an MCP client"
 source: https://modelcontextprotocol.io/docs/draft/develop/build-client.md
-scraped_at: 2026-11-07T19:28:42.801127+00:00
+scraped_at: 2026-11-07T19:33:33.562712+00:00
 success: True
 raw_markdown: True
 ---

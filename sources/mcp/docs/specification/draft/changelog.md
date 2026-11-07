@@ -1,7 +1,7 @@
 ---
 title: "Changelog"
 source: https://modelcontextprotocol.io/specification/draft/changelog.md
-scraped_at: 2026-11-07T19:29:38.553996+00:00
+scraped_at: 2026-11-07T19:33:54.214646+00:00
 success: True
 raw_markdown: True
 ---

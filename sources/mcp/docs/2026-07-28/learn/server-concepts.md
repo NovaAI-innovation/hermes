@@ -1,7 +1,7 @@
 ---
 title: "Understanding MCP servers"
 source: https://modelcontextprotocol.io/docs/2026-07-28/learn/server-concepts.md
-scraped_at: 2026-11-07T19:28:00.016029+00:00
+scraped_at: 2026-11-07T19:33:19.509938+00:00
 success: True
 raw_markdown: True
 ---

@@ -1,7 +1,7 @@
 ---
 title: "Completion"
 source: https://modelcontextprotocol.io/specification/draft/server/utilities/completion.md
-scraped_at: 2026-11-07T19:29:49.444732+00:00
+scraped_at: 2026-11-07T19:34:05.321459+00:00
 success: True
 raw_markdown: True
 ---

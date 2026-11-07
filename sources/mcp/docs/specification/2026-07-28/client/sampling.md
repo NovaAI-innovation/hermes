@@ -1,7 +1,7 @@
 ---
 title: "Sampling"
 source: https://modelcontextprotocol.io/specification/2026-07-28/client/sampling.md
-scraped_at: 2026-11-07T19:28:58.120758+00:00
+scraped_at: 2026-11-07T19:33:48.714638+00:00
 success: True
 raw_markdown: True
 ---

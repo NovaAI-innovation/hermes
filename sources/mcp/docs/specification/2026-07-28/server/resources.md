@@ -1,7 +1,7 @@
 ---
 title: "Resources"
 source: https://modelcontextprotocol.io/specification/2026-07-28/server/resources.md
-scraped_at: 2026-11-07T19:29:00.306989+00:00
+scraped_at: 2026-11-07T19:33:50.872090+00:00
 success: True
 raw_markdown: True
 ---

@@ -1,7 +1,7 @@
 ---
 title: "Client Registration"
 source: https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/client-registration.md
-scraped_at: 2026-11-07T19:28:56.684984+00:00
+scraped_at: 2026-11-07T19:33:47.519328+00:00
 success: True
 raw_markdown: True
 ---

@@ -1,7 +1,7 @@
 ---
 title: "Key Changes"
 source: https://modelcontextprotocol.io/specification/2026-07-28/changelog.md
-scraped_at: 2026-11-07T19:28:50.325231+00:00
+scraped_at: 2026-11-07T19:33:41.265784+00:00
 success: True
 raw_markdown: True
 ---

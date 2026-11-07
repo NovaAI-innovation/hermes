@@ -1,7 +1,7 @@
 ---
 title: "CLI client"
 source: https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/cli.md
-scraped_at: 2026-11-07T19:28:06.553999+00:00
+scraped_at: 2026-11-07T19:33:25.784400+00:00
 success: True
 raw_markdown: True
 ---

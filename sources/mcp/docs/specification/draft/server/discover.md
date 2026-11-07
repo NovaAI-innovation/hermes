@@ -1,7 +1,7 @@
 ---
 title: "Discovery"
 source: https://modelcontextprotocol.io/specification/draft/server/discover.md
-scraped_at: 2026-11-07T19:29:47.357910+00:00
+scraped_at: 2026-11-07T19:34:03.232251+00:00
 success: True
 raw_markdown: True
 ---

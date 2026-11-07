@@ -110,6 +110,7 @@ def main() -> int:
         footers = footer_patterns(source)
         docs = 0
         raw_bytes = clean_bytes = 0
+        written: set[Path] = set()
 
         for raw_path in sorted(source.docs_dir.rglob("*.md")):
             rel = raw_path.relative_to(source.docs_dir)
@@ -147,6 +148,7 @@ def main() -> int:
             out_path = source.clean_dir / rel
             out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_text(render_front_matter(out_meta) + cleaned, encoding="utf-8")
+            written.add(out_path)
 
             docs += 1
             raw_bytes += len(body)
@@ -164,6 +166,21 @@ def main() -> int:
 
         pct = 100 * (1 - clean_bytes / raw_bytes) if raw_bytes else 0.0
         print(f"  {source.name}: {docs} docs, {raw_bytes:,} -> {clean_bytes:,} chars ({pct:.1f}% removed)")
+
+        # Remove normalized files whose source page no longer exists (pruned
+        # versions, dropped URLs). Without this, deleted pages keep feeding the
+        # corpus from stale clean/ output.
+        removed = 0
+        if source.clean_dir.exists():
+            for stale in source.clean_dir.rglob("*.md"):
+                if stale not in written:
+                    stale.unlink()
+                    removed += 1
+            for folder in sorted(source.clean_dir.rglob("*"), reverse=True):
+                if folder.is_dir() and not any(folder.iterdir()):
+                    folder.rmdir()
+        if removed:
+            print(f"  {source.name}: removed {removed} stale normalized files")
 
     report_path = corpus / "normalize_report.json"
     report_path.parent.mkdir(parents=True, exist_ok=True)

@@ -1,7 +1,7 @@
 ---
 title: "Quickstart: Publish an MCP Server to the MCP Registry"
 source: https://modelcontextprotocol.io/registry/quickstart.md
-scraped_at: 2026-11-07T19:29:56.709165+00:00
+scraped_at: 2026-11-07T19:34:11.111369+00:00
 success: True
 raw_markdown: True
 ---

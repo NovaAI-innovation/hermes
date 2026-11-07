@@ -1,7 +1,7 @@
 ---
 title: "Versioning"
 source: https://modelcontextprotocol.io/docs/draft/learn/versioning.md
-scraped_at: 2026-11-07T19:28:40.358659+00:00
+scraped_at: 2026-11-07T19:33:31.591408+00:00
 success: True
 raw_markdown: True
 ---
